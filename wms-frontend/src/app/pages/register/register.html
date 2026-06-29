@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>Register</h2>
+
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+
+  <form (ngSubmit)="onSubmit()">
+    <div>
+      <label>Nombre</label>
+      <input type="text" [(ngModel)]="form.nombre" name="nombre" required />
+    </div>
+    <div>
+      <label>Apellido</label>
+      <input type="text" [(ngModel)]="form.apellido" name="apellido" required />
+    </div>
+    <div>
+      <label>CUIL</label>
+      <input type="text" [(ngModel)]="form.cuil" name="cuil" required />
+    </div>
+    <div>
+      <label>Contraseña</label>
+      <input type="password" [(ngModel)]="form.contrasena" name="contrasena" required />
+    </div>
+    <button type="submit">Registrarse</button>
+  </form>
+
+  <p>Already have an account? <a routerLink="/login">Login</a></p>
+</div>
