@@ -16,16 +16,37 @@
       {{ successMessage }}
     </div>
 
-    <form (ngSubmit)="onSubmit()" class="space-y-4">
+    <form #registerForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <input
           type="text"
           [(ngModel)]="form.nombre"
           name="nombre"
+          #nombreModel="ngModel"
           required
+          minlength="3"
+          maxlength="150"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
+        <p
+          *ngIf="nombreModel.touched && nombreModel.errors?.['required']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El nombre no puede estar vacío
+        </p>
+        <p
+          *ngIf="nombreModel.touched && nombreModel.errors?.['minlength']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El nombre debe tener entre 3 y 150 caracteres
+        </p>
+        <p
+          *ngIf="nombreModel.touched && nombreModel.errors?.['maxlength']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El nombre debe tener entre 3 y 150 caracteres
+        </p>
       </div>
 
       <div>
@@ -34,9 +55,30 @@
           type="text"
           [(ngModel)]="form.apellido"
           name="apellido"
+          #apellidoModel="ngModel"
           required
+          minlength="3"
+          maxlength="150"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
+        <p
+          *ngIf="apellidoModel.touched && apellidoModel.errors?.['required']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El apellido no puede estar vacío
+        </p>
+        <p
+          *ngIf="apellidoModel.touched && apellidoModel.errors?.['minlength']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El apellido debe tener entre 3 y 150 caracteres
+        </p>
+        <p
+          *ngIf="apellidoModel.touched && apellidoModel.errors?.['maxlength']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El apellido debe tener entre 3 y 150 caracteres
+        </p>
       </div>
 
       <div>
@@ -45,10 +87,24 @@
           type="text"
           [(ngModel)]="form.cuil"
           name="cuil"
+          #cuilModel="ngModel"
           placeholder="20-12345678-9"
           required
+          [pattern]="cuilPattern"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
+        <p
+          *ngIf="cuilModel.touched && cuilModel.errors?.['required']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El CUIL no puede estar vacío
+        </p>
+        <p
+          *ngIf="cuilModel.touched && cuilModel.errors?.['pattern']"
+          class="mt-1 text-sm text-red-600"
+        >
+          El CUIL no tiene un formato válido (ej: 20-12345678-9)
+        </p>
       </div>
 
       <div>
@@ -57,13 +113,35 @@
           type="password"
           [(ngModel)]="form.contrasena"
           name="contrasena"
+          #contrasenaModel="ngModel"
           required
+          minlength="8"
+          [pattern]="passwordPattern"
           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
         />
+        <p
+          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['required']"
+          class="mt-1 text-sm text-red-600"
+        >
+          La contraseña no puede estar vacía
+        </p>
+        <p
+          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['minlength']"
+          class="mt-1 text-sm text-red-600"
+        >
+          La contraseña debe tener al menos 8 caracteres
+        </p>
+        <p
+          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['pattern']"
+          class="mt-1 text-sm text-red-600"
+        >
+          La contraseña debe tener al menos 8 caracteres, una mayúscula y un número
+        </p>
       </div>
 
       <button
         type="submit"
+        [disabled]="registerForm.invalid"
         class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors duration-200"
       >
         Registrarse
