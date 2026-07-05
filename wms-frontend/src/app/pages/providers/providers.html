@@ -1,0 +1,158 @@
+<div class="min-h-screen bg-gray-100">
+  <header class="border-b border-gray-200 bg-white">
+    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+      <div>
+        <p class="text-sm font-semibold text-green-700">Proveedores</p>
+        <h1 class="text-2xl font-bold text-gray-900">Carga de proveedor</h1>
+      </div>
+
+      <a routerLink="/admin" class="text-sm font-semibold text-green-700 hover:underline">Volver al panel</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-4xl px-4 py-6">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        *ngIf="errorMessage"
+        class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div
+        *ngIf="successMessage"
+        class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
+      >
+        {{ successMessage }}
+      </div>
+
+      <form #providerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">ID proveedor</label>
+          <input
+            type="text"
+            [(ngModel)]="form.id_proveedor"
+            name="id_proveedor"
+            #idProveedorModel="ngModel"
+            required
+            [pattern]="uuidPattern"
+            placeholder="550e8400-e29b-41d4-a716-446655440000"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p
+            *ngIf="idProveedorModel.touched && idProveedorModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El ID del proveedor no puede estar vacío
+          </p>
+          <p
+            *ngIf="idProveedorModel.touched && idProveedorModel.errors?.['pattern']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El ID debe tener formato UUID
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">CUIT</label>
+          <input
+            type="text"
+            [(ngModel)]="form.cuit"
+            name="cuit"
+            #cuitModel="ngModel"
+            required
+            maxlength="20"
+            [pattern]="cuitPattern"
+            placeholder="30-12345678-9"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p *ngIf="cuitModel.touched && cuitModel.errors?.['required']" class="mt-1 text-sm text-red-600">
+            El CUIT no puede estar vacío
+          </p>
+          <p *ngIf="cuitModel.touched && cuitModel.errors?.['pattern']" class="mt-1 text-sm text-red-600">
+            El CUIT no tiene un formato válido
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Razón social</label>
+          <input
+            type="text"
+            [(ngModel)]="form.razon_social"
+            name="razon_social"
+            #razonSocialModel="ngModel"
+            required
+            maxlength="150"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p
+            *ngIf="razonSocialModel.touched && razonSocialModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            La razón social no puede estar vacía
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Teléfono</label>
+          <input
+            type="tel"
+            [(ngModel)]="form.telefono"
+            name="telefono"
+            #telefonoModel="ngModel"
+            required
+            maxlength="30"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p *ngIf="telefonoModel.touched && telefonoModel.errors?.['required']" class="mt-1 text-sm text-red-600">
+            El teléfono no puede estar vacío
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Mail</label>
+          <input
+            type="email"
+            [(ngModel)]="form.mail"
+            name="mail"
+            #mailModel="ngModel"
+            required
+            email
+            maxlength="150"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p *ngIf="mailModel.touched && mailModel.errors?.['required']" class="mt-1 text-sm text-red-600">
+            El mail no puede estar vacío
+          </p>
+          <p *ngIf="mailModel.touched && mailModel.errors?.['email']" class="mt-1 text-sm text-red-600">
+            El mail no tiene un formato válido
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Dirección</label>
+          <input
+            type="text"
+            [(ngModel)]="form.direccion"
+            name="direccion"
+            #direccionModel="ngModel"
+            required
+            maxlength="200"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p *ngIf="direccionModel.touched && direccionModel.errors?.['required']" class="mt-1 text-sm text-red-600">
+            La dirección no puede estar vacía
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="providerForm.invalid"
+          class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+        >
+          Guardar proveedor
+        </button>
+      </form>
+    </div>
+  </main>
+</div>

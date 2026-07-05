@@ -1,0 +1,143 @@
+<div class="min-h-screen bg-gray-100">
+  <header class="border-b border-gray-200 bg-white">
+    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+      <div>
+        <p class="text-sm font-semibold text-green-700">Productos</p>
+        <h1 class="text-2xl font-bold text-gray-900">Carga de productos</h1>
+      </div>
+
+      <a routerLink="/admin" class="text-sm font-semibold text-green-700 hover:underline">Volver al panel</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-4xl px-4 py-6">
+    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div
+        *ngIf="errorMessage"
+        class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div
+        *ngIf="successMessage"
+        class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
+      >
+        {{ successMessage }}
+      </div>
+
+      <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
+        <div>
+          <div class="mb-1 flex items-center justify-between gap-3">
+            <label class="block text-sm font-medium text-gray-700">Proveedor</label>
+            <a routerLink="/proveedores" class="text-xs font-semibold text-green-700 hover:underline">Nuevo proveedor</a>
+          </div>
+
+          <select
+            [(ngModel)]="form.id_proveedor"
+            name="id_proveedor"
+            #idProveedorModel="ngModel"
+            required
+            [disabled]="loadingProviders || providers.length === 0"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
+          >
+            <option value="">{{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}</option>
+            <option *ngFor="let provider of providers" [value]="provider.id_proveedor">
+              {{ provider.razon_social }} - {{ provider.cuit }}
+            </option>
+          </select>
+
+          <p
+            *ngIf="idProveedorModel.touched && idProveedorModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            Tenés que seleccionar un proveedor
+          </p>
+          <p *ngIf="providerLoadMessage" class="mt-1 text-sm text-gray-600">
+            {{ providerLoadMessage }}
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">ID producto</label>
+          <input
+            type="text"
+            [(ngModel)]="form.id_producto"
+            name="id_producto"
+            #idProductoModel="ngModel"
+            required
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p
+            *ngIf="idProductoModel.touched && idProductoModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El ID del producto no puede estar vacío
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Nombre producto</label>
+          <input
+            type="text"
+            [(ngModel)]="form.nombre_productos"
+            name="nombre_productos"
+            #nombreProductoModel="ngModel"
+            required
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p
+            *ngIf="nombreProductoModel.touched && nombreProductoModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El nombre del producto no puede estar vacío
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Descripción producto</label>
+          <textarea
+            [(ngModel)]="form.descripcion_producto"
+            name="descripcion_producto"
+            #descripcionProductoModel="ngModel"
+            required
+            rows="4"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          ></textarea>
+          <p
+            *ngIf="descripcionProductoModel.touched && descripcionProductoModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            La descripción del producto no puede estar vacía
+          </p>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Código de barras</label>
+          <input
+            type="text"
+            [(ngModel)]="form.codigo_barras"
+            name="codigo_barras"
+            #codigoBarrasModel="ngModel"
+            required
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+          <p
+            *ngIf="codigoBarrasModel.touched && codigoBarrasModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El código de barras no puede estar vacío
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="productForm.invalid"
+          class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+        >
+          Guardar producto
+        </button>
+      </form>
+    </div>
+  </main>
+</div>

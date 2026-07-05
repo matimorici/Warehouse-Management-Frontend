@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,10 @@ import { Router } from '@angular/router';
   templateUrl: './register.html',
 })
 export class RegisterComponent {
+  @Input() compact = false;
+  @Input() redirectAfterSuccess = true;
+  @Input() showLoginLink = true;
+
   readonly nameMinLength = 3;
   readonly nameMaxLength = 150;
   readonly cuilPattern = '^(?:\\d{2}-\\d{8}-\\d{1}|\\d{11})$';
@@ -38,11 +42,20 @@ export class RegisterComponent {
 
     this.authService.register(this.form).subscribe({
       next: (res) => {
-        this.successMessage = 'User created successfully!';
-        setTimeout(() => this.router.navigate(['/login']), 1500);
+        this.successMessage = 'Empleado creado correctamente';
+        this.form = {
+          nombre: '',
+          apellido: '',
+          cuil: '',
+          contrasena: '',
+        };
+
+        if (this.redirectAfterSuccess) {
+          setTimeout(() => this.router.navigate(['/login']), 1500);
+        }
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Registration failed';
+        this.errorMessage = err.error?.message || 'No se pudo crear el empleado';
       },
     });
   }

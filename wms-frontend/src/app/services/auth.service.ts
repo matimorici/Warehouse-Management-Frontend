@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export type UserRole = 'ADMIN' | 'OPERARIO';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,5 +23,82 @@ export class AuthService {
 
   login(data: { username: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/login`, data);
+  }
+
+  saveSession(data: unknown): void {
+    const role = this.extractRole(data);
+    const token = this.extractToken(data);
+
+    if (role) {
+      localStorage.setItem('userRole', role);
+    }
+
+    if (token) {
+      localStorage.setItem('authToken', token);
+    }
+  }
+
+  getUserRole(): UserRole | null {
+    return this.normalizeRole(localStorage.getItem('userRole'));
+  }
+
+  getHomeRouteByRole(role: UserRole | null): string {
+    if (role === 'ADMIN') {
+      return '/admin';
+    }
+
+    if (role === 'OPERARIO') {
+      return '/operario';
+    }
+
+    return '/login';
+  }
+
+  private extractRole(data: unknown): UserRole | null {
+    const roleValue = this.findFirstString(data, ['role', 'rol', 'tipoUsuario', 'tipo_usuario', 'tipo']);
+
+    return this.normalizeRole(roleValue);
+  }
+
+  private extractToken(data: unknown): string | null {
+    return this.findFirstString(data, ['token', 'accessToken', 'jwt']);
+  }
+
+  private findFirstString(data: unknown, keys: string[]): string | null {
+    if (!this.isRecord(data)) {
+      return null;
+    }
+
+    for (const key of keys) {
+      const value = data[key];
+
+      if (typeof value === 'string') {
+        return value;
+      }
+    }
+
+    for (const key of ['usuario', 'user', 'empleado']) {
+      const nestedValue = this.findFirstString(data[key], keys);
+
+      if (nestedValue) {
+        return nestedValue;
+      }
+    }
+
+    return null;
+  }
+
+  private normalizeRole(role: string | null): UserRole | null {
+    const normalizedRole = role?.trim().toUpperCase();
+
+    if (normalizedRole === 'ADMIN' || normalizedRole === 'OPERARIO') {
+      return normalizedRole;
+    }
+
+    return null;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
   }
 }

@@ -29,11 +29,11 @@ export class LoginComponent {
 
     this.authService.login(this.form).subscribe({
       next: (res) => {
-        // store token here later (JWT)
-        this.router.navigate(['/dashboard']);
+        this.authService.saveSession(res);
+        this.router.navigate(['/home']);
       },
       error: (err) => {
-        this.errorMessage = 'Invalid credentials';
+        this.errorMessage = err.error?.message || 'Credenciales inválidas';
       },
     });
   }
