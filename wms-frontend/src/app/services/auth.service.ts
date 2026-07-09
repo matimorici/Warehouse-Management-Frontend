@@ -21,20 +21,15 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/usuarios`, data);
   }
 
-  login(data: { username: string; password: string }): Observable<any> {
+  login(data: { cuil: string; contrasena: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/login`, data);
   }
 
   saveSession(data: unknown): void {
     const role = this.extractRole(data);
-    const token = this.extractToken(data);
 
     if (role) {
       localStorage.setItem('userRole', role);
-    }
-
-    if (token) {
-      localStorage.setItem('authToken', token);
     }
   }
 
@@ -58,10 +53,6 @@ export class AuthService {
     const roleValue = this.findFirstString(data, ['role', 'rol', 'tipoUsuario', 'tipo_usuario', 'tipo']);
 
     return this.normalizeRole(roleValue);
-  }
-
-  private extractToken(data: unknown): string | null {
-    return this.findFirstString(data, ['token', 'accessToken', 'jwt']);
   }
 
   private findFirstString(data: unknown, keys: string[]): string | null {

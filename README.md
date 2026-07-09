@@ -130,3 +130,11 @@ The optimized artifacts will be generated in the `dist/wms-frontend/` folder and
 - **Port `4200` already in use** – start the server on a different port: `npm start -- --port 4300`.
 - **API requests fail** – confirm the backend is running and that `apiUrl` in `auth.service.ts` points to the correct address.
 - **Dependency issues** – delete `node_modules` and `package-lock.json`, then run `npm install` again.
+
+Users:
+- Admin:
+    -
+    12345
+- Operario:
+    20-00000000-8
+    Password1

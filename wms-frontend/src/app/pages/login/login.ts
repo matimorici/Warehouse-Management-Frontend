@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   form = {
-    username: '',
-    password: '',
+    cuil: '',
+    contrasena: '',
   };
 
   errorMessage = '';
