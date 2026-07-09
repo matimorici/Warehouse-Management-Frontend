@@ -30,6 +30,8 @@ export class AuthService {
 
     if (role) {
       localStorage.setItem('userRole', role);
+    } else {
+      localStorage.removeItem('userRole');
     }
   }
 
@@ -82,7 +84,11 @@ export class AuthService {
   private normalizeRole(role: string | null): UserRole | null {
     const normalizedRole = role?.trim().toUpperCase();
 
-    if (normalizedRole === 'ADMIN' || normalizedRole === 'OPERARIO') {
+    if (normalizedRole === 'ADMIN' || normalizedRole === 'ADMINISTRADOR') {
+      return 'ADMIN';
+    }
+
+    if (normalizedRole === 'OPERARIO') {
       return normalizedRole;
     }
 

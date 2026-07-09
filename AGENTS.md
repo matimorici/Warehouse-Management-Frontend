@@ -44,5 +44,4 @@
 
 ## Known stale/broken items
 
-- `src/app/services/auth.ts` exports an empty `Auth` class — likely unused/abandoned.
-- `login.spec.ts` imports `Login` but the component is exported as `LoginComponent`.
+*(none currently — see TODO.md for active items)*

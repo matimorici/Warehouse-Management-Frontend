@@ -133,8 +133,8 @@ The optimized artifacts will be generated in the `dist/wms-frontend/` folder and
 
 Users:
 - Admin:
-    -
-    12345
+    -00-00000000-0
+    -Admin123
 - Operario:
     20-00000000-8
     Password1

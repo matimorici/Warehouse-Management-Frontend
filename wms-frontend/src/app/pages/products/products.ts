@@ -11,7 +11,7 @@ import { ProviderForm, ProviderService } from '../../services/provider.service';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './products.html',
 })
-export class ProductsComponent {
+export class ProductsComponent implements OnInit {
   form: ProductForm = {
     id_producto: '',
     nombre_productos: '',

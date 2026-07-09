@@ -16,8 +16,6 @@ export class RegisterComponent {
   @Input() redirectAfterSuccess = true;
   @Input() showLoginLink = true;
 
-  readonly nameMinLength = 3;
-  readonly nameMaxLength = 150;
   readonly cuilPattern = '^(?:\\d{2}-\\d{8}-\\d{1}|\\d{11})$';
   readonly passwordPattern = '^(?=.*[A-Z])(?=.*[0-9]).{8,}$';
 
