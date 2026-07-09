@@ -1,0 +1,86 @@
+<div class="min-h-screen bg-gray-100">
+  <header class="border-b border-gray-200 bg-white">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <div>
+        <p class="text-sm font-semibold text-green-700">Órdenes de Retiro</p>
+        <h1 class="text-2xl font-bold text-gray-900">Listado de órdenes</h1>
+      </div>
+
+      <a
+        routerLink="/"
+        class="text-sm font-semibold text-green-700 hover:underline"
+      >
+        Volver al inicio
+      </a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-6">
+    <div
+      *ngIf="errorMessage"
+      class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
+      {{ errorMessage }}
+    </div>
+
+    <div
+      *ngIf="successMessage"
+      class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
+    >
+      {{ successMessage }}
+    </div>
+
+    <div class="mb-4">
+      <a
+        routerLink="/ordenes-retiro/nuevo"
+        class="inline-flex rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-green-700"
+      >
+        Nueva orden de retiro
+      </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-gray-200 bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 font-semibold text-gray-700">ID</th>
+            <th class="px-4 py-3 font-semibold text-gray-700">Usuario</th>
+            <th class="px-4 py-3 font-semibold text-gray-700">Fecha / Hora</th>
+            <th class="px-4 py-3 font-semibold text-gray-700">Líneas</th>
+            <th class="px-4 py-3 font-semibold text-gray-700">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngIf="loading">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Cargando...</td>
+          </tr>
+          <tr *ngIf="!loading && orders.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+              No hay órdenes de retiro registradas
+            </td>
+          </tr>
+          <tr *ngFor="let order of orders" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ order.idOrdenRetiro }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ order.idUsuario }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ order.fechaHora }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ getLineCount(order) }}</td>
+            <td class="space-x-2 px-4 py-3">
+              <a
+                [routerLink]="['/ordenes-retiro', order.idOrdenRetiro]"
+                class="rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+              >
+                Editar
+              </a>
+              <button
+                (click)="deleteOrder(order.idOrdenRetiro)"
+                class="rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

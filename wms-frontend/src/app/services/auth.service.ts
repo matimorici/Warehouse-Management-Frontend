@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 export type UserRole = 'ADMIN' | 'OPERARIO';
 
@@ -98,7 +98,32 @@ export class AuthService {
     return null;
   }
 
+  getUsers(): Observable<UserInfo[]> {
+    return this.http.get<unknown>(`${this.apiUrl}/usuarios`).pipe(
+      map((response) => this.normalizeUsers(response)),
+    );
+  }
+
+  private normalizeUsers(response: unknown): UserInfo[] {
+    if (Array.isArray(response)) {
+      return response as UserInfo[];
+    }
+
+    if (this.isRecord(response) && Array.isArray(response['content'])) {
+      return response['content'] as UserInfo[];
+    }
+
+    return [];
+  }
+
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
   }
+}
+
+export interface UserInfo {
+  idUsuario: number;
+  nombre: string;
+  apellido: string;
+  cuil: string;
 }
