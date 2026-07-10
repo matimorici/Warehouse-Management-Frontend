@@ -28,32 +28,6 @@
 
       <form #providerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">ID proveedor</label>
-          <input
-            type="text"
-            [(ngModel)]="form.id_proveedor"
-            name="id_proveedor"
-            #idProveedorModel="ngModel"
-            required
-            [pattern]="uuidPattern"
-            placeholder="550e8400-e29b-41d4-a716-446655440000"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p
-            *ngIf="idProveedorModel.touched && idProveedorModel.errors?.['required']"
-            class="mt-1 text-sm text-red-600"
-          >
-            El ID del proveedor no puede estar vacío
-          </p>
-          <p
-            *ngIf="idProveedorModel.touched && idProveedorModel.errors?.['pattern']"
-            class="mt-1 text-sm text-red-600"
-          >
-            El ID debe tener formato UUID
-          </p>
-        </div>
-
-        <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">CUIT</label>
           <input
             type="text"
@@ -78,8 +52,8 @@
           <label class="mb-1 block text-sm font-medium text-gray-700">Razón social</label>
           <input
             type="text"
-            [(ngModel)]="form.razon_social"
-            name="razon_social"
+            [(ngModel)]="form.razonSocial"
+            name="razonSocial"
             #razonSocialModel="ngModel"
             required
             maxlength="150"

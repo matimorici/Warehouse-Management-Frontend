@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs';
+import { Observable, map, timeout, catchError } from 'rxjs';
 
 export interface ProviderForm {
-  id_proveedor: string;
+  idProveedor?: string;
   cuit: string;
-  razon_social: string;
+  razonSocial: string;
   telefono: string;
   mail: string;
   direccion: string;
@@ -25,7 +24,14 @@ export class ProviderService {
   }
 
   getProviders(): Observable<ProviderForm[]> {
-    return this.http.get<unknown>(`${this.apiUrl}/proveedores`).pipe(map((response) => this.normalizeProviders(response)));
+    return this.http.get<unknown>(`${this.apiUrl}/proveedores`).pipe(
+      timeout(15000),
+      map((response) => this.normalizeProviders(response)),
+      catchError((err) => {
+        console.error('Error /api/proveedores:', err);
+        throw err;
+      }),
+    );
   }
 
   private normalizeProviders(response: unknown): ProviderForm[] {

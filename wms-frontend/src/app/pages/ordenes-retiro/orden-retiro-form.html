@@ -81,8 +81,21 @@
                   </option>
                   <option *ngFor="let p of products" [ngValue]="p.idProducto">
                     {{ p.nombreProducto }} - {{ p.codigoBarras }}
+                    <span class="text-gray-400">(disp: {{ p.cantidadDisponible }})</span>
                   </option>
                 </select>
+
+                <div *ngIf="line.idProducto" class="mt-1">
+                  <span
+                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                    [class.bg-green-100]="!isStockWarning(line)"
+                    [class.text-green-800]="!isStockWarning(line)"
+                    [class.bg-yellow-100]="isStockWarning(line)"
+                    [class.text-yellow-800]="isStockWarning(line)"
+                  >
+                    Stock disponible: {{ getProduct(line.idProducto)?.cantidadDisponible ?? '?' }}
+                  </span>
+                </div>
               </div>
 
               <div class="w-32">
@@ -95,6 +108,9 @@
                   min="1"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
+                <p *ngIf="isStockWarning(line)" class="mt-1 text-xs text-yellow-700">
+                  La cantidad supera el stock disponible
+                </p>
               </div>
 
               <button

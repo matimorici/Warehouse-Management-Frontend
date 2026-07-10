@@ -34,16 +34,16 @@
           </div>
 
           <select
-            [(ngModel)]="form.id_proveedor"
-            name="id_proveedor"
+            [(ngModel)]="form.idProveedor"
+            name="idProveedor"
             #idProveedorModel="ngModel"
             required
             [disabled]="loadingProviders || providers.length === 0"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
           >
-            <option value="">{{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}</option>
-            <option *ngFor="let provider of providers" [value]="provider.id_proveedor">
-              {{ provider.razon_social }} - {{ provider.cuit }}
+            <option [ngValue]="null">{{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}</option>
+            <option *ngFor="let provider of providers" [ngValue]="provider.idProveedor">
+              {{ provider.razonSocial }} - {{ provider.cuit }}
             </option>
           </select>
 
@@ -59,31 +59,14 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">ID producto</label>
-          <input
-            type="text"
-            [(ngModel)]="form.id_producto"
-            name="id_producto"
-            #idProductoModel="ngModel"
-            required
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p
-            *ngIf="idProductoModel.touched && idProductoModel.errors?.['required']"
-            class="mt-1 text-sm text-red-600"
-          >
-            El ID del producto no puede estar vacío
-          </p>
-        </div>
-
-        <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Nombre producto</label>
           <input
             type="text"
-            [(ngModel)]="form.nombre_productos"
-            name="nombre_productos"
+            [(ngModel)]="form.nombreProducto"
+            name="nombreProducto"
             #nombreProductoModel="ngModel"
             required
+            maxlength="150"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <p
@@ -97,10 +80,11 @@
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Descripción producto</label>
           <textarea
-            [(ngModel)]="form.descripcion_producto"
-            name="descripcion_producto"
+            [(ngModel)]="form.descripcionProducto"
+            name="descripcionProducto"
             #descripcionProductoModel="ngModel"
             required
+            maxlength="500"
             rows="4"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           ></textarea>
@@ -113,31 +97,120 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Código de barras</label>
-          <input
-            type="text"
-            [(ngModel)]="form.codigo_barras"
-            name="codigo_barras"
-            #codigoBarrasModel="ngModel"
+          <label class="mb-1 block text-sm font-medium text-gray-700">Origen código de barras</label>
+          <select
+            [(ngModel)]="form.origenCodigoBarras"
+            name="origenCodigoBarras"
+            #origenModel="ngModel"
             required
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          >
+            <option value="FABRICANTE">FABRICANTE</option>
+            <option value="INTERNO">INTERNO</option>
+          </select>
           <p
-            *ngIf="codigoBarrasModel.touched && codigoBarrasModel.errors?.['required']"
+            *ngIf="origenModel.touched && origenModel.errors?.['required']"
             class="mt-1 text-sm text-red-600"
           >
-            El código de barras no puede estar vacío
+            Seleccioná el origen del código de barras
           </p>
         </div>
 
-        <button
-          type="submit"
-          [disabled]="productForm.invalid"
-          class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
-        >
-          Guardar producto
-        </button>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-gray-700">Código de barras <span class="text-gray-400 font-normal">(opcional, se genera automáticamente si se selecciona INTERNO)</span></label>
+          <input
+            type="text"
+            [(ngModel)]="form.codigoBarras"
+            name="codigoBarras"
+            maxlength="50"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Cantidad disponible</label>
+            <input
+              type="number"
+              [(ngModel)]="form.cantidadDisponible"
+              name="cantidadDisponible"
+              min="0"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Cantidad pendiente</label>
+            <input
+              type="number"
+              [(ngModel)]="form.cantidadPendiente"
+              name="cantidadPendiente"
+              min="0"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            [disabled]="productForm.invalid"
+            class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+          >
+            {{ editingProduct ? 'Actualizar producto' : 'Guardar producto' }}
+          </button>
+
+          <button
+            *ngIf="editingProduct"
+            type="button"
+            (click)="cancelEdit()"
+            class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+        </div>
       </form>
+    </div>
+
+    <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 class="mb-4 text-lg font-bold text-gray-900">Productos cargados</h2>
+
+      <p *ngIf="loadingProducts" class="text-sm text-gray-600">Cargando productos...</p>
+      <p *ngIf="productsLoadMessage && !loadingProducts" class="text-sm text-gray-600">{{ productsLoadMessage }}</p>
+
+      <div *ngIf="products.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 text-gray-600">
+              <th class="px-3 py-2 font-medium">ID</th>
+              <th class="px-3 py-2 font-medium">Nombre</th>
+              <th class="px-3 py-2 font-medium">Código barras</th>
+              <th class="px-3 py-2 font-medium">Origen</th>
+              <th class="px-3 py-2 font-medium">Disponible</th>
+              <th class="px-3 py-2 font-medium">Pendiente</th>
+              <th class="px-3 py-2 font-medium">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products" class="border-b border-gray-100 hover:bg-gray-50">
+              <td class="px-3 py-2">{{ product.idProducto }}</td>
+              <td class="px-3 py-2">{{ product.nombreProducto }}</td>
+              <td class="px-3 py-2 font-mono text-xs">{{ product.codigoBarras }}</td>
+              <td class="px-3 py-2">{{ product.origenCodigoBarras }}</td>
+              <td class="px-3 py-2">{{ product.cantidadDisponible }}</td>
+              <td class="px-3 py-2">{{ product.cantidadPendiente }}</td>
+              <td class="px-3 py-2">
+                <button
+                  (click)="editProduct(product)"
+                  class="text-sm font-semibold text-green-700 hover:underline"
+                >
+                  Editar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </main>
 </div>

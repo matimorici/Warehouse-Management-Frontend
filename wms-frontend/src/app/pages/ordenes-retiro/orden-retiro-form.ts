@@ -67,6 +67,7 @@ export class OrdenRetiroFormComponent implements OnInit {
       },
       error: (err) => {
         this.loadingOrder = false;
+        console.error('Error al cargar orden:', err);
         this.errorMessage = err.error?.message || 'No se pudo cargar la orden de retiro';
       },
     });
@@ -79,8 +80,9 @@ export class OrdenRetiroFormComponent implements OnInit {
         this.users = users;
         this.loadingUsers = false;
       },
-      error: () => {
+      error: (err) => {
         this.loadingUsers = false;
+        console.error('Error al cargar usuarios:', err);
       },
     });
   }
@@ -92,10 +94,22 @@ export class OrdenRetiroFormComponent implements OnInit {
         this.products = products;
         this.loadingProducts = false;
       },
-      error: () => {
+      error: (err) => {
         this.loadingProducts = false;
+        console.error('Error al cargar productos:', err);
       },
     });
+  }
+
+  getProduct(productId: number | null): ProductInfo | undefined {
+    if (!productId) return undefined;
+    return this.products.find((p) => p.idProducto === productId);
+  }
+
+  isStockWarning(line: LineaForm): boolean {
+    if (!line.idProducto || line.cantidad < 1) return false;
+    const product = this.getProduct(line.idProducto);
+    return product !== undefined && line.cantidad > product.cantidadDisponible;
   }
 
   addLine(): void {
@@ -145,6 +159,7 @@ export class OrdenRetiroFormComponent implements OnInit {
         this.successMessage = this.isEditMode
           ? 'Orden de retiro actualizada correctamente'
           : 'Orden de retiro creada correctamente';
+        this.loadProducts();
         setTimeout(() => this.router.navigate(['/ordenes-retiro']), 1500);
       },
       error: (err) => {

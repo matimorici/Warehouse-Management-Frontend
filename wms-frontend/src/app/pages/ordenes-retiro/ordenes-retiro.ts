@@ -31,6 +31,7 @@ export class OrdenesRetiroComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        console.error('Error al cargar órdenes de retiro:', err);
         this.errorMessage = err.error?.message || 'No se pudieron cargar las órdenes de retiro';
       },
     });

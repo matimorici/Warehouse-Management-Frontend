@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, timeout, catchError } from 'rxjs';
 
 export interface ProductForm {
-  id_producto: string;
-  nombre_productos: string;
-  descripcion_producto: string;
-  codigo_barras: string;
-  id_proveedor: string;
+  idProducto?: string;
+  nombreProducto: string;
+  descripcionProducto: string;
+  codigoBarras?: string;
+  idProveedor: number;
+  origenCodigoBarras: string;
+  cantidadDisponible?: number;
+  cantidadPendiente?: number;
 }
 
 export interface ProductInfo {
@@ -16,6 +19,10 @@ export interface ProductInfo {
   descripcionProducto: string;
   codigoBarras: string;
   idProveedor: number;
+  origenCodigoBarras: string;
+  cantidadDisponible: number;
+  cantidadPendiente: number;
+  stockFechaHora?: string;
 }
 
 @Injectable({
@@ -30,9 +37,18 @@ export class ProductService {
     return this.http.post(`${this.apiUrl}/productos`, data);
   }
 
+  updateProduct(id: number, data: ProductForm): Observable<any> {
+    return this.http.put(`${this.apiUrl}/productos/${id}`, data);
+  }
+
   getProducts(): Observable<ProductInfo[]> {
     return this.http.get<unknown>(`${this.apiUrl}/productos`).pipe(
+      timeout(15000),
       map((response) => this.normalizeProducts(response)),
+      catchError((err) => {
+        console.error('Error /api/productos:', err);
+        throw err;
+      }),
     );
   }
 

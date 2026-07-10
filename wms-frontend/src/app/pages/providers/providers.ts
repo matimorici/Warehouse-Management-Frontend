@@ -11,13 +11,11 @@ import { ProviderForm, ProviderService } from '../../services/provider.service';
   templateUrl: './providers.html',
 })
 export class ProvidersComponent {
-  readonly uuidPattern = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$';
   readonly cuitPattern = '^(?:\\d{2}-\\d{8}-\\d{1}|\\d{11})$';
 
   form: ProviderForm = {
-    id_proveedor: '',
     cuit: '',
-    razon_social: '',
+    razonSocial: '',
     telefono: '',
     mail: '',
     direccion: '',
@@ -36,15 +34,15 @@ export class ProvidersComponent {
       next: (res) => {
         this.successMessage = 'Proveedor cargado correctamente';
         this.form = {
-          id_proveedor: '',
           cuit: '',
-          razon_social: '',
+          razonSocial: '',
           telefono: '',
           mail: '',
           direccion: '',
         };
       },
       error: (err) => {
+        console.error('Error al crear proveedor:', err);
         this.errorMessage = err.error?.message || 'No se pudo cargar el proveedor';
       },
     });

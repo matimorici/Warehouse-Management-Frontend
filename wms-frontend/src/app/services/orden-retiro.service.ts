@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, timeout, catchError } from 'rxjs';
 
 export interface ProductoInfo {
   idProducto: number;
@@ -39,23 +39,33 @@ export class OrdenRetiroService {
 
   constructor(private http: HttpClient) {}
 
+  private applyTimeout<T>(obs: Observable<T>): Observable<T> {
+    return obs.pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('Error /api/ordenes-retiro:', err);
+        throw err;
+      }),
+    );
+  }
+
   create(data: OrdenRetiroCreate): Observable<OrdenRetiroResponse> {
-    return this.http.post<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro`, data);
+    return this.applyTimeout(this.http.post<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro`, data));
   }
 
   list(): Observable<OrdenRetiroResponse[]> {
-    return this.http.get<OrdenRetiroResponse[]>(`${this.apiUrl}/ordenes-retiro`);
+    return this.applyTimeout(this.http.get<OrdenRetiroResponse[]>(`${this.apiUrl}/ordenes-retiro`));
   }
 
   getById(id: number): Observable<OrdenRetiroResponse> {
-    return this.http.get<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro/${id}`);
+    return this.applyTimeout(this.http.get<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro/${id}`));
   }
 
   update(id: number, data: OrdenRetiroCreate): Observable<OrdenRetiroResponse> {
-    return this.http.put<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro/${id}`, data);
+    return this.applyTimeout(this.http.put<OrdenRetiroResponse>(`${this.apiUrl}/ordenes-retiro/${id}`, data));
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/ordenes-retiro/${id}`);
+    return this.applyTimeout(this.http.delete<void>(`${this.apiUrl}/ordenes-retiro/${id}`));
   }
 }
