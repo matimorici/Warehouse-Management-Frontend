@@ -2,7 +2,7 @@
 
 ## Visual Direction
 
-The interface is a practical warehouse workbench for long desktop shifts, deliberately closer to a classic internal WMS than a modern product site. It uses a cool gray desktop canvas, white bordered work panels, compact deep-ink utility bars, and a restrained amber action color. The visual language is dense, square-edged, high contrast, and information-first: no split hero compositions, oversized statements, glass effects, or ornamental motion.
+The interface is a practical warehouse workbench for long desktop shifts, deliberately closer to a classic internal WMS than a modern product site. It uses a cool gray desktop canvas, white bordered work panels, compact deep-ink utility bars, and amber operational labels. Primary actions use deep ink with white text for reliable contrast; amber is reserved for markers, focus, and section context. The visual language is dense, square-edged, high contrast, and information-first: no split hero compositions, oversized statements, glass effects, or ornamental motion.
 
 ## Tokens
 
@@ -11,11 +11,16 @@ The interface is a practical warehouse workbench for long desktop shifts, delibe
 - Ink: `#17212b`
 - Muted text: `#5d6a74`
 - Lines: `#d7dee3`
-- Action accent: `#b87518`
+- Operational accent: `#b87518`
 - Success: `#16745a`
 - Danger: `#b42318`
 - Radius: `2px` for work surfaces and controls
+- Primary action: `#273542` with white text
 - Elevation: a minimal `0 1px 2px` shadow on panels only
+
+## Action Semantics
+
+Buttons communicate intent consistently: green (`wms-action-success`) commits or starts an operation, red (`wms-action-danger`) removes or cancels a destructive operation, and deep ink (`wms-action`) is used for neutral navigation and utility actions. All semantic fills use white text for contrast. Secondary actions remain white with an ink label so they do not compete with the primary action.
 
 ## Typography
 

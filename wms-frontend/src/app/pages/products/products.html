@@ -2,7 +2,7 @@
   <header class="wms-topbar">
     <div class="wms-topbar-inner">
       <div>
-        <p class="text-sm font-semibold text-green-700">Productos</p>
+        <p class="wms-section-label">Productos</p>
         <h1 class="text-2xl font-bold text-gray-900">Carga de productos</h1>
       </div>
 
@@ -156,7 +156,7 @@
           <button
             type="submit"
             [disabled]="productForm.invalid"
-            class="wms-action disabled:cursor-not-allowed disabled:opacity-50"
+            class="wms-action wms-action-success disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ editingProduct ? 'Actualizar producto' : 'Guardar producto' }}
           </button>
@@ -203,7 +203,7 @@
               <td class="px-3 py-2">
                 <button
                   (click)="editProduct(product)"
-                  class="text-sm font-semibold text-green-700 hover:underline"
+                  class="wms-inline-link"
                 >
                   Editar
                 </button>

@@ -11,7 +11,7 @@
   <main class="wms-content pb-10">
     <div class="wms-page-heading flex items-end justify-between gap-4">
       <div><h1>Listado de órdenes</h1><p>Consultá y mantené las solicitudes de retiro registradas.</p></div>
-      <a routerLink="/ordenes-retiro/nuevo" class="wms-action">Nueva orden de retiro</a>
+      <a routerLink="/ordenes-retiro/nuevo" class="wms-action wms-action-success">Nueva orden de retiro</a>
     </div>
     <div
       *ngIf="errorMessage"
@@ -61,7 +61,7 @@
               </a>
               <button
                 (click)="deleteOrder(order.idOrdenRetiro)"
-                class="wms-danger-action"
+                class="wms-action wms-action-danger !min-h-0 !px-2 !py-1 !text-xs"
               >
                 Eliminar
               </button>

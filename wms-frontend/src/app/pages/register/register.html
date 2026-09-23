@@ -148,7 +148,7 @@
       <button
         type="submit"
         [disabled]="registerForm.invalid"
-        class="wms-action w-full disabled:cursor-not-allowed disabled:opacity-50"
+        class="wms-action wms-action-success w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
         Registrarse
       </button>
@@ -156,7 +156,7 @@
 
     <p *ngIf="showLoginLink" class="text-sm text-center text-gray-500 mt-4">
       ¿Ya tenés cuenta?
-      <a routerLink="/login" class="text-green-600 hover:underline font-medium"> Iniciá sesión </a>
+      <a routerLink="/login" class="wms-inline-link"> Iniciá sesión </a>
     </p>
   </div>
 </div>

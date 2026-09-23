@@ -10,7 +10,9 @@
   --wms-accent: #b87518;
   --wms-accent-dark: #80500e;
   --wms-success: #16745a;
+  --wms-success-dark: #0f5a45;
   --wms-danger: #b42318;
+  --wms-danger-dark: #8f1c14;
 }
 
 html {
@@ -177,6 +179,16 @@ textarea:focus-visible {
   font-size: 0.82rem;
 }
 
+.wms-section-label {
+  margin: 0;
+  color: var(--wms-accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .wms-table-wrap {
   overflow-x: auto;
   border: 1px solid var(--wms-line);
@@ -273,8 +285,8 @@ textarea:focus-visible {
   justify-content: center;
   border: 1px solid var(--wms-accent-dark);
   border-radius: 2px;
-  background: var(--wms-accent);
-  color: #221507;
+  background: var(--wms-ink-soft);
+  color: #ffffff;
   padding: 0 15px;
   font-size: 0.87rem;
   font-weight: 700;
@@ -285,7 +297,25 @@ textarea:focus-visible {
 }
 
 .wms-action:hover {
-  background: #e7a03d;
+  background: var(--wms-ink);
+}
+
+.wms-action-success {
+  border-color: var(--wms-success-dark);
+  background: var(--wms-success);
+}
+
+.wms-action-success:hover {
+  background: var(--wms-success-dark);
+}
+
+.wms-action-danger {
+  border-color: var(--wms-danger-dark);
+  background: var(--wms-danger);
+}
+
+.wms-action-danger:hover {
+  background: var(--wms-danger-dark);
 }
 
 .wms-action:active {
