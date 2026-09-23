@@ -1,63 +1,77 @@
-<div class="min-h-screen bg-gray-100 flex items-center justify-center">
-  <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Iniciar sesión</h2>
-
-    <div
-      *ngIf="errorMessage"
-      class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-4 text-sm"
-    >
-      {{ errorMessage }}
+<div class="wms-login">
+  <aside class="wms-login-aside">
+    <div>
+      <a class="wms-mark" routerLink="/login">
+        <span>
+          <strong>Gestión de almacén</strong>
+          <span>Sistema de gestión</span>
+        </span>
+      </a>
+      <h1>Todo en su lugar.</h1>
+      <p>Accedé al panel para consultar stock, proveedores y órdenes de retiro.</p>
     </div>
+    <footer>Acceso interno · WMS</footer>
+  </aside>
 
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">CUIL</label>
-        <input
-          type="text"
-          [(ngModel)]="form.cuil"
-          name="cuil"
-          #cuilModel="ngModel"
-          required
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="cuilModel.touched && cuilModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El CUIL no puede estar vacío
-        </p>
+  <main class="wms-login-form">
+    <div class="wms-login-card">
+      <h2>Iniciar sesión</h2>
+      <p class="wms-form-intro">Usá tus credenciales de operador o administrador.</p>
+
+      <div *ngIf="errorMessage" class="wms-error mb-4">
+        {{ errorMessage }}
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input
-          type="password"
-          [(ngModel)]="form.contrasena"
-          name="contrasena"
-          #contrasenaModel="ngModel"
-          required
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="wms-field">
+          <label for="cuil">CUIL</label>
+          <input
+            id="cuil"
+            type="text"
+            [(ngModel)]="form.cuil"
+            name="cuil"
+            #cuilModel="ngModel"
+            required
+          />
+          <p
+            *ngIf="cuilModel.touched && cuilModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            El CUIL no puede estar vacío
+          </p>
+        </div>
+
+        <div class="wms-field">
+          <label for="contrasena">Contraseña</label>
+          <input
+            id="contrasena"
+            type="password"
+            [(ngModel)]="form.contrasena"
+            name="contrasena"
+            #contrasenaModel="ngModel"
+            required
+          />
+          <p
+            *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
+            La contraseña no puede estar vacía
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loginForm.invalid"
+          class="wms-action w-full disabled:cursor-not-allowed disabled:opacity-50"
         >
-          La contraseña no puede estar vacía
-        </p>
-      </div>
+          Iniciar sesión
+        </button>
+      </form>
 
-      <button
-        type="submit"
-        [disabled]="loginForm.invalid"
-        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors duration-200"
-      >
-        Iniciar sesión
-      </button>
-    </form>
-
-    <p class="text-sm text-center text-gray-500 mt-4">
-      ¿No tenés cuenta?
-      <a routerLink="/register" class="text-green-600 hover:underline font-medium"> Registrate </a>
-    </p>
-  </div>
+      <p class="wms-login-link">
+        ¿No tenés cuenta?
+        <a routerLink="/register"> Registrate </a>
+      </p>
+    </div>
+  </main>
 </div>

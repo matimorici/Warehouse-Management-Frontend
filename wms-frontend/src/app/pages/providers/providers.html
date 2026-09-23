@@ -1,17 +1,18 @@
-<div class="min-h-screen bg-gray-100">
-  <header class="border-b border-gray-200 bg-white">
-    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+<div class="wms-shell">
+  <header class="wms-topbar">
+    <div class="wms-topbar-inner">
       <div>
         <p class="text-sm font-semibold text-green-700">Proveedores</p>
         <h1 class="text-2xl font-bold text-gray-900">Carga de proveedor</h1>
       </div>
 
-      <a routerLink="/admin" class="text-sm font-semibold text-green-700 hover:underline">Volver al panel</a>
+      <a routerLink="/admin" class="wms-action wms-action-secondary">Volver al panel</a>
     </div>
   </header>
 
-  <main class="mx-auto max-w-4xl px-4 py-6">
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading"><h1>Carga de proveedor</h1><p>Registrá los datos de contacto y facturación del proveedor.</p></div>
+    <div class="wms-panel wms-form-panel">
       <div
         *ngIf="errorMessage"
         class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -122,7 +123,7 @@
         <button
           type="submit"
           [disabled]="providerForm.invalid"
-          class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+          class="wms-action disabled:cursor-not-allowed disabled:opacity-50"
         >
           Guardar proveedor
         </button>

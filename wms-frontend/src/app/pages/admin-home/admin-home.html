@@ -1,57 +1,47 @@
-<div class="min-h-screen bg-gray-100">
-  <header class="border-b border-gray-200 bg-white">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-      <div>
-        <p class="text-sm font-semibold text-green-700">Panel ADMIN</p>
-        <h1 class="text-2xl font-bold text-gray-900">Gestión de empleados</h1>
-      </div>
+<div class="wms-shell">
+  <header class="wms-topbar">
+    <div class="wms-topbar-inner">
+      <a class="wms-mark" routerLink="/admin">
+        <span>
+          <strong>Gestión de almacén</strong>
+          <span>Panel de administración</span>
+        </span>
+      </a>
 
       <div class="flex gap-3">
-        <a
-          routerLink="/ordenes-retiro"
-          class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-green-700"
-        >
+        <a routerLink="/ordenes-retiro" class="wms-action wms-action-secondary">
           Órdenes de retiro
         </a>
 
-        <a
-          routerLink="/productos"
-          class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-green-700"
-        >
-          Cargar productos
-        </a>
+        <a routerLink="/productos" class="wms-action"> Cargar productos </a>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_320px]">
+  <main class="wms-content grid gap-6 pb-10 lg:grid-cols-[1fr_320px]">
+    <div class="wms-page-heading lg:col-span-2">
+      <h1>Gestión de empleados</h1>
+      <p>Registrá personas nuevas y accedé rápidamente a las tareas de administración.</p>
+    </div>
+
     <section>
       <app-register [compact]="true" [redirectAfterSuccess]="false" [showLoginLink]="false" />
     </section>
 
     <aside class="space-y-4">
-      <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+      <div class="wms-panel p-5">
         <h2 class="text-lg font-semibold text-gray-900">Acciones rápidas</h2>
-        <p class="mt-2 text-sm text-gray-600">Desde este panel podés registrar empleados y cargar productos.</p>
+        <p class="mt-2 text-sm text-gray-600">
+          Accedé a los movimientos más frecuentes del depósito.
+        </p>
 
-        <a
-          routerLink="/productos"
-          class="mt-4 inline-flex w-full justify-center rounded-lg border border-green-600 px-4 py-2 text-sm font-semibold text-green-700 transition-colors duration-200 hover:bg-green-50"
-        >
-          Nueva carga de producto
-        </a>
+        <a routerLink="/productos" class="wms-action w-full mt-4"> Nueva carga de producto </a>
 
-        <a
-          routerLink="/proveedores"
-          class="mt-3 inline-flex w-full justify-center rounded-lg border border-green-600 px-4 py-2 text-sm font-semibold text-green-700 transition-colors duration-200 hover:bg-green-50"
-        >
+        <a routerLink="/proveedores" class="wms-action wms-action-secondary w-full mt-3">
           Nuevo proveedor
         </a>
 
-        <a
-          routerLink="/ordenes-retiro"
-          class="mt-3 inline-flex w-full justify-center rounded-lg border border-green-600 px-4 py-2 text-sm font-semibold text-green-700 transition-colors duration-200 hover:bg-green-50"
-        >
+        <a routerLink="/ordenes-retiro" class="wms-action wms-action-secondary w-full mt-3">
           Órdenes de retiro
         </a>
       </div>

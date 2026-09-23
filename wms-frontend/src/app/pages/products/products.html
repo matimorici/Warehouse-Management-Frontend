@@ -1,17 +1,18 @@
-<div class="min-h-screen bg-gray-100">
-  <header class="border-b border-gray-200 bg-white">
-    <div class="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+<div class="wms-shell">
+  <header class="wms-topbar">
+    <div class="wms-topbar-inner">
       <div>
         <p class="text-sm font-semibold text-green-700">Productos</p>
         <h1 class="text-2xl font-bold text-gray-900">Carga de productos</h1>
       </div>
 
-      <a routerLink="/admin" class="text-sm font-semibold text-green-700 hover:underline">Volver al panel</a>
+      <a routerLink="/admin" class="wms-action wms-action-secondary">Volver al panel</a>
     </div>
   </header>
 
-  <main class="mx-auto max-w-4xl px-4 py-6">
-    <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading"><h1>Carga de productos</h1><p>Registrá artículos y mantené actualizado el inventario.</p></div>
+    <div class="wms-panel wms-form-panel">
       <div
         *ngIf="errorMessage"
         class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
@@ -30,7 +31,7 @@
         <div>
           <div class="mb-1 flex items-center justify-between gap-3">
             <label class="block text-sm font-medium text-gray-700">Proveedor</label>
-            <a routerLink="/proveedores" class="text-xs font-semibold text-green-700 hover:underline">Nuevo proveedor</a>
+            <a routerLink="/proveedores" class="wms-inline-link">Nuevo proveedor</a>
           </div>
 
           <select
@@ -155,7 +156,7 @@
           <button
             type="submit"
             [disabled]="productForm.invalid"
-            class="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+            class="wms-action disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ editingProduct ? 'Actualizar producto' : 'Guardar producto' }}
           </button>
@@ -164,7 +165,7 @@
             *ngIf="editingProduct"
             type="button"
             (click)="cancelEdit()"
-            class="rounded-lg border border-gray-300 bg-white px-4 py-2 font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-50"
+            class="wms-action wms-action-secondary"
           >
             Cancelar
           </button>
@@ -172,7 +173,7 @@
       </form>
     </div>
 
-    <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="wms-panel mt-6 wms-form-panel">
       <h2 class="mb-4 text-lg font-bold text-gray-900">Productos cargados</h2>
 
       <p *ngIf="loadingProducts" class="text-sm text-gray-600">Cargando productos...</p>

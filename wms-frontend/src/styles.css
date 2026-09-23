@@ -1,3 +1,452 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+:root {
+  --wms-ink: #17212b;
+  --wms-ink-soft: #273542;
+  --wms-canvas: #e9edf0;
+  --wms-panel: #ffffff;
+  --wms-line: #d7dee3;
+  --wms-muted: #5d6a74;
+  --wms-accent: #b87518;
+  --wms-accent-dark: #80500e;
+  --wms-success: #16745a;
+  --wms-danger: #b42318;
+}
+
+html {
+  background: var(--wms-canvas);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--wms-canvas);
+  color: var(--wms-ink);
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgb(217 139 32 / 35%);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: #f5d49f;
+  color: var(--wms-ink);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e7ecef;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #aab5bc;
+  border: 2px solid #e7ecef;
+  border-radius: 5px;
+}
+
+.wms-shell {
+  min-height: 100vh;
+  background: var(--wms-canvas);
+}
+
+.wms-topbar {
+  border-bottom: 1px solid #354552;
+  background: var(--wms-ink);
+  color: white;
+}
+
+.wms-topbar-inner,
+.wms-content {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.wms-topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  gap: 24px;
+}
+
+.wms-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+}
+
+.wms-mark::before {
+  content: 'W';
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid var(--wms-accent);
+  color: var(--wms-accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.wms-mark > span > strong {
+  display: block;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.wms-mark > span > span {
+  display: block;
+  margin-top: 1px;
+  color: #b9c5cc;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wms-page-heading {
+  padding: 34px 0 24px;
+}
+
+.wms-page-heading h1 {
+  margin: 0;
+  color: var(--wms-ink);
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.wms-page-heading p {
+  max-width: 70ch;
+  margin: 7px 0 0;
+  color: var(--wms-muted);
+}
+
+.wms-panel {
+  border: 1px solid var(--wms-line);
+  border-radius: 2px;
+  background: var(--wms-panel);
+  box-shadow: 0 1px 2px rgb(23 33 43 / 8%);
+}
+
+.wms-panel-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--wms-line);
+  padding: 17px 20px;
+}
+
+.wms-panel-title h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.wms-panel-title p {
+  margin: 0;
+  color: var(--wms-muted);
+  font-size: 0.82rem;
+}
+
+.wms-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--wms-line);
+  border-radius: 2px;
+  background: white;
+}
+
+.wms-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.87rem;
+}
+
+.wms-table th {
+  border-bottom: 2px solid #aeb9c0;
+  background: #eef1f3;
+  color: var(--wms-ink);
+  padding: 10px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wms-table td {
+  border-bottom: 1px solid #e1e6e9;
+  padding: 10px 12px;
+  color: #35434d;
+  vertical-align: middle;
+}
+
+.wms-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.wms-table tbody tr:hover {
+  background: #f7f9fa;
+}
+
+.wms-table .wms-number {
+  color: var(--wms-ink);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.wms-content input,
+.wms-content select,
+.wms-content textarea {
+  border-radius: 2px;
+}
+
+.wms-content .wms-form-panel {
+  padding: 24px;
+}
+
+.wms-content .wms-form-panel h2 {
+  margin: 0 0 20px;
+  border-bottom: 1px solid var(--wms-line);
+  padding-bottom: 13px;
+  font-size: 1.05rem;
+}
+
+.wms-inline-link {
+  color: var(--wms-accent-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.wms-inline-link:hover {
+  text-decoration: underline;
+}
+
+.wms-danger-action {
+  border: 1px solid #b42318;
+  border-radius: 2px;
+  background: #fff4f2;
+  color: #9b1c14;
+  padding: 6px 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.wms-danger-action:hover {
+  background: #fce2df;
+}
+
+.wms-action {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wms-accent-dark);
+  border-radius: 2px;
+  background: var(--wms-accent);
+  color: #221507;
+  padding: 0 15px;
+  font-size: 0.87rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.wms-action:hover {
+  background: #e7a03d;
+}
+
+.wms-action:active {
+  transform: translateY(1px);
+}
+
+.wms-action-secondary {
+  border-color: var(--wms-line);
+  background: white;
+  color: var(--wms-ink);
+}
+
+.wms-action-secondary:hover {
+  background: #eef2f4;
+}
+
+.wms-login-aside {
+  display: flex;
+  align-items: center;
+  min-height: 58px;
+  background: var(--wms-ink);
+  color: white;
+  padding: 0 20px;
+}
+
+.wms-login-aside > div {
+  display: flex;
+  width: min(100%, 1180px);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wms-login-aside h1,
+.wms-login-aside p,
+.wms-login-aside footer {
+  display: none;
+}
+
+.wms-login {
+  min-height: 100vh;
+  background: var(--wms-canvas);
+}
+
+.wms-login-form {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 56px 20px;
+}
+
+.wms-login-card {
+  width: min(100%, 440px);
+  border: 1px solid #aeb9c0;
+  border-radius: 2px;
+  background: var(--wms-panel);
+  box-shadow: 0 1px 2px rgb(23 33 43 / 8%);
+  padding: 26px 28px 24px;
+}
+
+.wms-login-card h2 {
+  margin: 0 0 7px;
+  border-bottom: 1px solid var(--wms-line);
+  padding-bottom: 15px;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+}
+
+.wms-login-card .wms-form-intro {
+  margin: 8px 0 26px;
+  color: var(--wms-muted);
+}
+
+.wms-field {
+  margin-bottom: 18px;
+}
+
+.wms-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--wms-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.wms-field input,
+.wms-field select,
+.wms-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #b8c3ca;
+  border-radius: 2px;
+  background: white;
+  color: var(--wms-ink);
+  padding: 11px 12px;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.wms-content input:focus,
+.wms-content select:focus,
+.wms-content textarea:focus {
+  border-color: var(--wms-accent-dark);
+  box-shadow: 0 0 0 3px rgb(184 117 24 / 15%);
+  outline: none;
+}
+
+.wms-field input::placeholder,
+.wms-field textarea::placeholder {
+  color: #87939b;
+}
+
+.wms-field input:focus,
+.wms-field select:focus,
+.wms-field textarea:focus {
+  border-color: var(--wms-accent-dark);
+  box-shadow: 0 0 0 3px rgb(217 139 32 / 16%);
+  outline: none;
+}
+
+.wms-error {
+  border: 1px solid #e5aaa5;
+  border-radius: 3px;
+  background: #fff4f2;
+  color: var(--wms-danger);
+  padding: 11px 12px;
+  font-size: 0.87rem;
+}
+
+.wms-login-link {
+  display: block;
+  margin-top: 22px;
+  color: var(--wms-muted);
+  font-size: 0.87rem;
+  text-align: center;
+}
+
+.wms-login-link a {
+  color: var(--wms-accent-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .wms-login-aside {
+    padding: 0 16px;
+  }
+
+  .wms-login-form {
+    padding: 32px 16px 48px;
+  }
+
+  .wms-login-card {
+    padding: 22px 18px 20px;
+  }
+
+  .wms-topbar-inner,
+  .wms-content {
+    width: min(100% - 32px, 1180px);
+  }
+
+  .wms-content .wms-form-panel {
+    padding: 18px;
+  }
+}
