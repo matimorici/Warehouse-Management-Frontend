@@ -2,17 +2,17 @@
 
 ## 🔴 High
 
-- [ ] **`app.spec.ts` — broken test**
-  `src/app/app.spec.ts:21` asserts `querySelector('h1')?.textContent` to contain `'Hello, wms-frontend'`, but the template `app.html` only has `<router-outlet />` — no `<h1>` exists. The test always fails. Also missing `provideRouter([])` provider.
-  Fix: Remove or rewrite the test to match actual template content.
+- [x] **`app.spec.ts` — broken test**
+  Originally asserted `querySelector('h1')?.textContent` contains `'Hello, wms-frontend'` on a template that only has `<router-outlet />`, and was missing `provideRouter([])`.
+  → **Resolved (verified):** the spec now imports `App`, providers `provideRouter([])`, and asserts the `router-outlet` exists. No `h1`/`Hello, wms-frontend` assertion remains. Two tests pass.
 
-- [ ] **`app.component.ts` — dead empty file**
-  `src/app/app.component.ts` is 0 bytes. Never imported, never referenced. Leftover from the initial Angular CLI scaffold. The real root is `app.ts`.
-  Fix: Delete the file.
+- [x] **`app.component.ts` — dead empty file**
+  0-byte scaffold leftover, never imported; the real root is `app.ts`.
+  → **Resolved (verified):** the file no longer exists in `src/app/`.
 
-- [ ] **`products.ts` — orphaned `OnInit` / `ngOnInit()`**
-  `src/app/pages/products/products.ts:1` imports `OnInit` but the class at line 14 does not `implements OnInit`. The `ngOnInit()` method at line 34 exists without the type contract.
-  Fix: Either add `implements OnInit` to the class or remove the unused import.
+- [x] **`products.ts` — orphaned `OnInit` / `ngOnInit()`**
+  Imported `OnInit` and defined `ngOnInit()` without implementing the interface.
+  → **Resolved (verified):** `ProductsComponent implements OnInit` (`products.ts:14`) and `OnInit` is imported (`products.ts:1`).
 
 ## 🟡 Medium
 
@@ -23,43 +23,67 @@
   - `src/app/services/provider.service.ts:19`
   - `src/app/services/orden-retiro.service.ts:38`
   Fix: Centralise via an injection token, environment file, or a shared config service.
+  → **SKIPPED** per request.
 
-- [ ] **`auth.ts` — abandoned empty service**
-  `src/app/services/auth.ts` exports an empty `Auth` class. Never imported by any component or service.
-  Fix: Delete `auth.ts` and its spec `auth.spec.ts`, or repurpose it.
+- [x] **Missing spec files for 7/10 components**
+  Missing specs for `home`, `admin-home`, `operator-home`, `products`, `providers`, `ordenes-retiro`, `orden-retiro-form`.
+  → **Resolved:** created all 7 specs. Suite is now 10 spec files / 11 tests, all green.
 
-- [ ] **`auth.spec.ts` — tests dead code**
-  `src/app/services/auth.spec.ts` only tests the abandoned `Auth` class. If `auth.ts` is deleted this file must go too.
+- [x] **Spec files missing `provideHttpClientTesting()`**
+  `login.spec.ts` and `register.spec.ts` inject `AuthService` -> `HttpClient` with no HTTP mock.
+  → **Resolved:** added `provideHttpClient()` + `provideHttpClientTesting()` to both specs; the 7 new specs use the same provider pair.
 
-- [ ] **Missing spec files for 7/10 components**
-  Only `app`, `login`, and `register` have tests. Missing specs for:
-  - `home`, `admin-home`, `operator-home`, `products`, `providers`, `ordenes-retiro`, `orden-retiro-form`
+- [x] **`auth.ts` — abandoned empty service**
+  Exported an empty `Auth` class, never imported.
+  → **Resolved (verified):** `services/auth.ts` is gone. `services/` now holds only `auth.service.ts`, `product.service.ts`, `provider.service.ts`, `orden-retiro.service.ts`.
 
-- [ ] **Spec files missing `provideHttpClientTesting()`**
-  `login.spec.ts` and `register.spec.ts` import components that inject `AuthService` -> `HttpClient` but provide no HTTP mock. Tests pass because no actual HTTP call fires, but it is fragile.
-  Fix: Add `provideHttpClientTesting()` alongside `provideRouter([])`.
+- [x] **`auth.spec.ts` — tests dead code**
+  Only tested the abandoned `Auth` class.
+  → **Resolved (verified):** deleted alongside `auth.ts`.
 
-- [ ] **`ordenes-retiro.html` — back link routes to `/` → login**
-  `src/app/pages/ordenes-retiro/ordenes-retiro.html:10` has `<a routerLink="/">` which resolves to the root redirect `/` → `/login`. Should navigate back to the user's role-based home instead.
-  Fix: Use a method that calls `getHomeRouteByRole()` or navigate back with `location.back()`.
+- [x] **`ordenes-retiro.html` — back link routes to `/` → login**
+  Header/back links hardcoded `routerLink="/admin"`, wrong for operators.
+  → **Resolved:** injected `AuthService` into `OrdenesRetiroComponent`, added a `homeRoute` getter using `getHomeRouteByRole(getUserRole())`, and bound both header links to `[routerLink]="homeRoute"` (`ordenes-retiro.ts:20`, `ordenes-retiro.html:4,7`).
 
-- [ ] **`AGENTS.md` — stale login spec info**
-  Currently says `login.spec.ts` imports `Login` — already fixed, it now imports `LoginComponent`.
-  Fix: Update the doc.
+- [x] **`AGENTS.md` — stale login spec info**
+  Claimed specs import wrong class names (e.g. `Login`).
+  → **Resolved:** replaced with accurate guidance — specs import real class names, and components with `HttpClient` need `provideHttpClient()` + `provideHttpClientTesting()`.
 
-- [ ] **`register.ts` — `nameMinLength`/`nameMaxLength` dead properties**
-  `src/app/pages/register/register.ts:19-20` defines `nameMinLength = 3` and `nameMaxLength = 150`, but the template `register.html:34-35` uses hardcoded `minlength="3"` and `maxlength="150"` instead of binding `[minlength]="nameMinLength"`.
-  Fix: Bind the template to the class properties or remove the unused props.
+- [x] **`register.ts` — `nameMinLength`/`nameMaxLength` dead properties**
+  Class props existed but template used hardcoded values.
+  → **Resolved (verified):** the dead properties no longer exist in `register.ts`; the template keeps its literal `minlength="3"` / `maxlength="150"`.
 
-- [ ] **`provider.service.ts` — inconsistent `map` import**
-  `src/app/services/provider.service.ts:4` imports `map` from `rxjs/operators` (legacy pipeable operator path). The other services import from `rxjs` directly.
-  Fix: Standardise to `import { map } from 'rxjs'`.
+- [x] **`provider.service.ts` — inconsistent `map` import**
+  Imported `map` from `rxjs/operators`.
+  → **Resolved (verified):** now `import { Observable, map, timeout, catchError } from 'rxjs'` (`provider.service.ts:3`).
 
 ## 🟢 Low
 
-- [ ] **Orphaned empty CSS files**
-  `src/app/pages/login/login.css` and `src/app/pages/register/register.css` exist on disk but no component references them (no `styleUrl` or `styles` in the decorator).
-  Fix: Delete the files.
+- [x] **Orphaned empty CSS files**
+  `login.css` and `register.css` existed on disk with no `styleUrl` reference.
+  → **Resolved (verified):** both files no longer exist.
+
+## 📄 Pages / surfaces not yet built
+
+Already built: login (`/login`), register (`/register`), admin home (`/admin`), operator home (`/operario`), productos list+form (`/productos`), proveedores create-form (`/proveedores`), órdenes de retiro list+form (`/ordenes-retiro`, `/ordenes-retiro/nuevo`, `/ordenes-retiro/:id`).
+
+- [ ] **Dashboard / Home real** — `/home` is a stub that only redirects. Post-login landing showing key data (stock, pending orders). Route guessed from LOGIN redirect; decide auth-guard + post-login routing.
+- [ ] **Logout action** — no logout exists anywhere (no button, no `POST /api/auth/logout` call). Add as header action, not a page.
+- [ ] **Producto detail (stock)** — `GET /api/productos/{id}/stock`, editable stock (`PUT …/stock`), barcode image (`GET …/barcode`). Current `productos` page only has form + inline table.
+- [ ] **Proveedores list** — `GET /api/proveedores`. Only the create form exists; no list/edit.
+- [ ] **Ubicaciones list** — `GET /api/ubicaciones`.
+- [ ] **Ubicación form** — create/edit.
+- [ ] **Valoraciones de proveedor list** — `GET /api/valoraciones-proveedor`, filterable by supplier.
+- [ ] **Valoración form** — create/edit.
+- [ ] **Órdenes de compra list** — `GET /api/ordenes-compra` (summaries + status).
+- [ ] **Orden de compra form** — create/edit, lines of product + amount.
+- [ ] **Orden de compra detail** — with "Recibir" action (`PUT /api/ordenes-compra/{id}/recibir`).
+- [ ] **Receiving confirmation** — modal updating stock; can live on compra detail.
+- [ ] **Movimientos físicos list** — `GET /api/movimientos-fisicos`, filters: product, user, date range.
+- [ ] **Registrar movimiento** form — `POST`, append-only event.
+- [ ] **Usuarios list** — `GET /api/usuarios` (admin-only).
+- [ ] **Usuario form** — create/edit, set role/rol (admin-only).
+- [ ] **Not-found / 403 page** — routing is role-gated (OPERARIO vs ADMINISTRADOR); no error page exists. `**` currently redirects to login.
 
 ## ✅ Already fixed
 

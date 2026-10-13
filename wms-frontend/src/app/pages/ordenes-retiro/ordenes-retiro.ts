@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OrdenRetiroService, OrdenRetiroResponse } from '../../services/orden-retiro.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-ordenes-retiro',
@@ -15,7 +16,14 @@ export class OrdenesRetiroComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private service: OrdenRetiroService) {}
+  constructor(
+    private service: OrdenRetiroService,
+    private authService: AuthService,
+  ) {}
+
+  get homeRoute(): string {
+    return this.authService.getHomeRouteByRole(this.authService.getUserRole());
+  }
 
   ngOnInit(): void {
     this.loadOrders();

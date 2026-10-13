@@ -31,8 +31,9 @@
 
 ## Testing quirks
 
-- Some spec files may import component classes with wrong names (e.g., `login.spec.ts` imports `Login` instead of `LoginComponent`). Verify exports when fixing tests.
+- Specs import standalone components by their real class names (e.g., `LoginComponent`, not `Login`). Verify exports when adding specs.
 - Tests follow `TestBed.configureTestingModule({ imports: [Component] }).compileComponents()` pattern.
+- Components injecting services that use `HttpClient` need `provideHttpClient()` + `provideHttpClientTesting()` in `providers`, alongside `provideRouter([])` when templates use router links.
 - `tsconfig.spec.json` includes `"types": ["vitest/globals"]` — globals like `describe`, `it`, `expect` are available without imports.
 
 ## Framework quirks
