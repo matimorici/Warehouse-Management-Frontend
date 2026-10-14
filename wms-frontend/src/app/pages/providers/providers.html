@@ -1,133 +1,143 @@
 <div class="wms-shell">
-  <header class="wms-topbar">
-    <div class="wms-topbar-inner">
-      <div>
-        <p class="wms-section-label">Proveedores</p>
-        <h1 class="text-2xl font-bold text-gray-900">Carga de proveedor</h1>
-      </div>
-
-      <a routerLink="/admin" class="wms-action wms-action-secondary">Volver al panel</a>
-    </div>
-  </header>
+  <app-page-topbar section="Proveedores" />
 
   <main class="wms-content pb-10">
-    <div class="wms-page-heading"><h1>Carga de proveedor</h1><p>Registrá los datos de contacto y facturación del proveedor.</p></div>
-    <div class="wms-panel wms-form-panel">
-      <div
-        *ngIf="errorMessage"
-        class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
-      >
-        {{ errorMessage }}
-      </div>
+    <div class="wms-page-heading">
+      <h1>Proveedores</h1>
+      <p>Registrá, consultá y actualizá los datos de contacto y facturación de los proveedores.</p>
+    </div>
 
-      <div
-        *ngIf="successMessage"
-        class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
-      >
-        {{ successMessage }}
-      </div>
+    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
 
-      <form #providerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">CUIT</label>
-          <input
-            type="text"
-            [(ngModel)]="form.cuit"
-            name="cuit"
-            #cuitModel="ngModel"
-            required
-            maxlength="20"
-            [pattern]="cuitPattern"
-            placeholder="30-12345678-9"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p *ngIf="cuitModel.touched && cuitModel.errors?.['required']" class="mt-1 text-sm text-red-600">
-            El CUIT no puede estar vacío
-          </p>
-          <p *ngIf="cuitModel.touched && cuitModel.errors?.['pattern']" class="mt-1 text-sm text-red-600">
-            El CUIT no tiene un formato válido
-          </p>
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <section class="wms-panel">
+        <div class="wms-panel-title">
+          <h2>Proveedores cargados</h2>
+          <p>{{ providers.length }} en total</p>
         </div>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Razón social</label>
-          <input
-            type="text"
-            [(ngModel)]="form.razonSocial"
-            name="razonSocial"
-            #razonSocialModel="ngModel"
-            required
-            maxlength="150"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p
-            *ngIf="razonSocialModel.touched && razonSocialModel.errors?.['required']"
-            class="mt-1 text-sm text-red-600"
-          >
-            La razón social no puede estar vacía
-          </p>
-        </div>
+        <p *ngIf="loading" class="p-5 text-sm text-gray-600">Cargando proveedores...</p>
+        <p *ngIf="!loading && listMessage" class="p-5 text-sm text-gray-600">{{ listMessage }}</p>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Teléfono</label>
-          <input
-            type="tel"
-            [(ngModel)]="form.telefono"
-            name="telefono"
-            #telefonoModel="ngModel"
-            required
-            maxlength="30"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p *ngIf="telefonoModel.touched && telefonoModel.errors?.['required']" class="mt-1 text-sm text-red-600">
-            El teléfono no puede estar vacío
-          </p>
+        <div class="wms-table-wrap border-0" *ngIf="!loading && providers.length > 0">
+          <table class="wms-table">
+            <thead>
+              <tr>
+                <th>CUIT</th>
+                <th>Razón social</th>
+                <th>Contacto</th>
+                <th>Dirección</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let provider of providers">
+                <td class="wms-number">{{ provider.cuit }}</td>
+                <td>{{ provider.razonSocial }}</td>
+                <td>
+                  <span class="block">{{ provider.telefono || '—' }}</span>
+                  <span class="block text-xs text-gray-500">{{ provider.mail || '—' }}</span>
+                </td>
+                <td>{{ provider.direccion || '—' }}</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <button type="button" class="wms-action wms-action-secondary wms-action-sm" (click)="editProvider(provider)">
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="wms-action wms-action-danger wms-action-sm"
+                      (click)="deleteProvider(provider.idProveedor)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </section>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Mail</label>
-          <input
-            type="email"
-            [(ngModel)]="form.mail"
-            name="mail"
-            #mailModel="ngModel"
-            required
-            email
-            maxlength="150"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p *ngIf="mailModel.touched && mailModel.errors?.['required']" class="mt-1 text-sm text-red-600">
-            El mail no puede estar vacío
-          </p>
-          <p *ngIf="mailModel.touched && mailModel.errors?.['email']" class="mt-1 text-sm text-red-600">
-            El mail no tiene un formato válido
-          </p>
-        </div>
+      <aside class="wms-panel wms-form-panel">
+        <h2>{{ editingId !== null ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Dirección</label>
-          <input
-            type="text"
-            [(ngModel)]="form.direccion"
-            name="direccion"
-            #direccionModel="ngModel"
-            required
-            maxlength="200"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <p *ngIf="direccionModel.touched && direccionModel.errors?.['required']" class="mt-1 text-sm text-red-600">
-            La dirección no puede estar vacía
-          </p>
-        </div>
+        <form #providerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
+          <div class="wms-field">
+            <label for="cuit">CUIT</label>
+            <input
+              id="cuit"
+              type="text"
+              [(ngModel)]="form.cuit"
+              name="cuit"
+              #cuitModel="ngModel"
+              required
+              maxlength="20"
+              [pattern]="cuitPattern"
+              placeholder="30-12345678-9"
+            />
+            <p *ngIf="cuitModel.touched && cuitModel.errors?.['required']" class="wms-field-error">
+              El CUIT no puede estar vacío
+            </p>
+            <p *ngIf="cuitModel.touched && cuitModel.errors?.['pattern']" class="wms-field-error">
+              El CUIT no tiene un formato válido
+            </p>
+          </div>
 
-        <button
-          type="submit"
-          [disabled]="providerForm.invalid"
-          class="wms-action wms-action-success disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Guardar proveedor
-        </button>
-      </form>
+          <div class="wms-field">
+            <label for="razonSocial">Razón social</label>
+            <input
+              id="razonSocial"
+              type="text"
+              [(ngModel)]="form.razonSocial"
+              name="razonSocial"
+              #razonSocialModel="ngModel"
+              required
+              minlength="3"
+              maxlength="150"
+            />
+            <p *ngIf="razonSocialModel.touched && razonSocialModel.errors?.['required']" class="wms-field-error">
+              La razón social no puede estar vacía
+            </p>
+          </div>
+
+          <div class="wms-field">
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" type="tel" [(ngModel)]="form.telefono" name="telefono" maxlength="30" />
+          </div>
+
+          <div class="wms-field">
+            <label for="mail">Mail</label>
+            <input
+              id="mail"
+              type="email"
+              [(ngModel)]="form.mail"
+              name="mail"
+              #mailModel="ngModel"
+              email
+              maxlength="150"
+            />
+            <p *ngIf="mailModel.touched && mailModel.errors?.['email']" class="wms-field-error">
+              El mail no tiene un formato válido
+            </p>
+          </div>
+
+          <div class="wms-field">
+            <label for="direccion">Dirección</label>
+            <input id="direccion" type="text" [(ngModel)]="form.direccion" name="direccion" maxlength="200" />
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="wms-action wms-action-success" [disabled]="providerForm.invalid || saving">
+              {{ saving ? 'Guardando...' : editingId !== null ? 'Actualizar proveedor' : 'Guardar proveedor' }}
+            </button>
+            <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </aside>
     </div>
   </main>
 </div>

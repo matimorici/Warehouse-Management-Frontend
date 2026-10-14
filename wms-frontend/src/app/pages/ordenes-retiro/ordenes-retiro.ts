@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OrdenRetiroService, OrdenRetiroResponse } from '../../services/orden-retiro.service';
 import { AuthService } from '../../services/auth.service';
+import { PageTopbarComponent } from '../../shared/page-topbar';
 
 @Component({
   selector: 'app-ordenes-retiro',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PageTopbarComponent],
   templateUrl: './ordenes-retiro.html',
 })
 export class OrdenesRetiroComponent implements OnInit {

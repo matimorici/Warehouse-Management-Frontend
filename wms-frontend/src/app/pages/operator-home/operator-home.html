@@ -1,29 +1,35 @@
 <div class="wms-shell">
-  <header class="wms-topbar">
-    <div class="wms-topbar-inner">
-      <a class="wms-mark" routerLink="/operario">
-        <span>
-          <strong>Gestión de almacén</strong>
-          <span>Panel operativo</span>
-        </span>
-      </a>
-    </div>
-  </header>
+  <app-page-topbar section="Panel operativo" [showBack]="false" />
 
   <main class="wms-content pb-10">
-    <div class="wms-page-heading">
+    <div class="wms-page-heading wms-page-heading-centered">
       <h1>Inicio de operario</h1>
       <p>Seleccioná una tarea para comenzar el turno.</p>
     </div>
 
-    <div class="wms-panel max-w-2xl">
-      <div class="wms-panel-title">
-        <h2>Tareas operativas</h2>
-        <p>Acciones disponibles</p>
-      </div>
-      <div class="p-5">
-        <a routerLink="/ordenes-retiro" class="wms-action wms-action-success w-full sm:w-auto"> Órdenes de retiro </a>
-      </div>
+    <div class="wms-launcher-grid">
+      <a *ngFor="let task of tasks" [routerLink]="task.route" class="wms-panel wms-task-card">
+        <span class="wms-task-card-body">
+          <span class="wms-launcher-row-name">{{ task.label }}</span>
+          <span class="wms-launcher-row-desc">{{ task.description }}</span>
+        </span>
+        <span class="wms-inline-link wms-launcher-cta">
+          Abrir
+          <svg
+            viewBox="0 0 16 16"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 3l5 5-5 5" />
+          </svg>
+        </span>
+      </a>
     </div>
   </main>
 </div>

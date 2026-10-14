@@ -1,21 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { PageTopbarComponent } from '../../shared/page-topbar';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, PageTopbarComponent],
   templateUrl: './register.html',
 })
 export class RegisterComponent {
-  @Input() compact = false;
-  @Input() redirectAfterSuccess = true;
-  @Input() showLoginLink = true;
-
   readonly cuilPattern = '^(?:\\d{2}-\\d{8}-\\d{1}|\\d{11})$';
   readonly passwordPattern = '^(?=.*[A-Z])(?=.*[0-9]).{8,}$';
 
@@ -34,26 +30,23 @@ export class RegisterComponent {
     private router: Router,
   ) {}
 
-  onSubmit() {
+  onSubmit(): void {
     this.errorMessage = '';
     this.successMessage = '';
 
     this.authService.register(this.form).subscribe({
-      next: (res) => {
-        this.successMessage = 'Empleado creado correctamente';
+      next: () => {
+        this.successMessage = 'Operario creado correctamente. Redirigiendo al listado...';
         this.form = {
           nombre: '',
           apellido: '',
           cuil: '',
           contrasena: '',
         };
-
-        if (this.redirectAfterSuccess) {
-          setTimeout(() => this.router.navigate(['/login']), 1500);
-        }
+        setTimeout(() => this.router.navigate(['/usuarios']), 1200);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'No se pudo crear el empleado';
+        this.errorMessage = err.error?.error || 'No se pudo crear el operario';
       },
     });
   }

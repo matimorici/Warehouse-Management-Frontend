@@ -1,0 +1,23 @@
+<div class="wms-shell">
+  <header class="wms-topbar">
+    <div class="wms-topbar-inner">
+      <a class="wms-mark" [routerLink]="homeRoute">
+        <span>
+          <strong>Gestión de almacén</strong>
+          <span>Página no encontrada</span>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading">
+      <h1>No encontramos esta página</h1>
+      <p>Error 404: la dirección que abriste no existe o fue movida. Volvé al panel para seguir trabajando.</p>
+    </div>
+
+    <div class="wms-panel wms-form-panel max-w-xl">
+      <a [routerLink]="homeRoute" class="wms-action wms-action-success">Volver a mi panel</a>
+    </div>
+  </main>
+</div>

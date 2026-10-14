@@ -1,25 +1,13 @@
 <div class="wms-shell">
-  <header class="wms-topbar">
-    <div class="wms-topbar-inner">
-      <a class="wms-mark" routerLink="/admin">
-        <span>
-          <strong>Gestión de almacén</strong>
-          <span>Administración</span>
-        </span>
-      </a>
-    </div>
-  </header>
+  <app-page-topbar section="Administración" [showBack]="false" />
 
   <main class="wms-content pb-10">
     <div class="wms-page-heading">
       <h1>Panel de administración</h1>
-      <p>
-        Accedé a las secciones de gestión del depósito. Las secciones marcadas «Próximamente»
-        todavía no están disponibles.
-      </p>
+      <p>Accedé a las secciones de gestión del depósito y seguí el estado operativo del día.</p>
     </div>
 
-    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       <div class="space-y-6">
         <section *ngFor="let group of mainGroups" class="wms-panel wms-launcher">
           <div class="wms-panel-title">
@@ -27,88 +15,137 @@
             <p>{{ group.hint }}</p>
           </div>
 
-          <ng-container *ngFor="let section of group.sections">
-            <a *ngIf="section.available" [routerLink]="section.route" class="wms-launcher-row">
-              <span class="wms-launcher-row-main">
-                <span class="wms-launcher-row-name">{{ section.label }}</span>
-                <span class="wms-launcher-row-desc">{{ section.description }}</span>
-              </span>
-              <span class="wms-inline-link wms-launcher-cta">
-                Abrir
-                <svg
-                  viewBox="0 0 16 16"
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M6 3l5 5-5 5" />
-                </svg>
-              </span>
-            </a>
-
-            <div
-              *ngIf="!section.available"
-              class="wms-launcher-row wms-launcher-row-soon"
-              aria-disabled="true"
-            >
-              <span class="wms-launcher-row-main">
-                <span class="wms-launcher-row-name">{{ section.label }}</span>
-                <span class="wms-launcher-row-desc">{{ section.description }}</span>
-              </span>
-              <span class="wms-status wms-status-soon">Próximamente</span>
-            </div>
-          </ng-container>
+          <a *ngFor="let section of group.sections" [routerLink]="section.route" class="wms-launcher-row">
+            <span class="wms-launcher-row-main">
+              <span class="wms-launcher-row-name">{{ section.label }}</span>
+              <span class="wms-launcher-row-desc">{{ section.description }}</span>
+            </span>
+            <span class="wms-inline-link wms-launcher-cta">
+              Abrir
+              <svg
+                viewBox="0 0 16 16"
+                width="13"
+                height="13"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </span>
+          </a>
         </section>
-      </div>
 
-      <aside class="space-y-6">
         <section class="wms-panel wms-launcher">
           <div class="wms-panel-title">
             <h2>{{ adminGroup.title }}</h2>
             <p>{{ adminGroup.hint }}</p>
           </div>
 
-          <ng-container *ngFor="let section of adminGroup.sections">
-            <a *ngIf="section.available" [routerLink]="section.route" class="wms-launcher-row">
-              <span class="wms-launcher-row-main">
-                <span class="wms-launcher-row-name">{{ section.label }}</span>
-                <span class="wms-launcher-row-desc">{{ section.description }}</span>
-              </span>
-              <span class="wms-inline-link wms-launcher-cta">
-                Abrir
-                <svg
-                  viewBox="0 0 16 16"
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M6 3l5 5-5 5" />
-                </svg>
-              </span>
-            </a>
+          <a *ngFor="let section of adminGroup.sections" [routerLink]="section.route" class="wms-launcher-row">
+            <span class="wms-launcher-row-main">
+              <span class="wms-launcher-row-name">{{ section.label }}</span>
+              <span class="wms-launcher-row-desc">{{ section.description }}</span>
+            </span>
+            <span class="wms-inline-link wms-launcher-cta">
+              Abrir
+              <svg
+                viewBox="0 0 16 16"
+                width="13"
+                height="13"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </span>
+          </a>
+        </section>
+      </div>
 
-            <div
-              *ngIf="!section.available"
-              class="wms-launcher-row wms-launcher-row-soon"
-              aria-disabled="true"
-            >
-              <span class="wms-launcher-row-main">
-                <span class="wms-launcher-row-name">{{ section.label }}</span>
-                <span class="wms-launcher-row-desc">{{ section.description }}</span>
-              </span>
-              <span class="wms-status wms-status-soon">Próximamente</span>
+      <aside class="space-y-6">
+        <section class="wms-panel">
+          <div class="wms-panel-title">
+            <h2>Resumen operativo</h2>
+            <p *ngIf="loadingSummary">Actualizando...</p>
+          </div>
+
+          <p *ngIf="summaryError" class="wms-error m-4">{{ summaryError }}</p>
+
+          <div class="wms-summary" *ngIf="!summaryError">
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Productos</span>
+              <span class="wms-summary-row-value">{{ products.length }}</span>
             </div>
-          </ng-container>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Unidades disponibles</span>
+              <span class="wms-summary-row-value">{{ totalAvailableUnits }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Unidades pendientes</span>
+              <span class="wms-summary-row-value">{{ totalPendingUnits }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Compras pendientes</span>
+              <span class="wms-summary-row-value">{{ pendingPurchaseOrders }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Compras recibidas</span>
+              <span class="wms-summary-row-value">{{ receivedPurchaseOrders }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Órdenes de retiro</span>
+              <span class="wms-summary-row-value">{{ withdrawalOrders.length }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Movimientos físicos</span>
+              <span class="wms-summary-row-value">{{ movements.length }}</span>
+            </div>
+            <div class="wms-summary-row">
+              <span class="wms-summary-row-label">Ubicaciones</span>
+              <span class="wms-summary-row-value">{{ locations.length }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="wms-panel">
+          <div class="wms-panel-title">
+            <h2>Sin stock</h2>
+            <p>{{ outOfStockCount }} productos</p>
+          </div>
+
+          <p *ngIf="loadingSummary" class="p-5 text-sm text-gray-600">Cargando...</p>
+          <p *ngIf="!loadingSummary && outOfStockProducts.length === 0" class="p-5 text-sm text-gray-600">
+            Todos los productos tienen stock disponible.
+          </p>
+
+          <div class="wms-table-wrap border-0" *ngIf="!loadingSummary && outOfStockProducts.length > 0">
+            <table class="wms-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Pendiente</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of outOfStockProducts">
+                  <td>{{ product.nombreProducto }}</td>
+                  <td class="wms-number">{{ product.cantidadPendiente }}</td>
+                  <td>
+                    <a [routerLink]="['/productos', product.idProducto]" class="wms-inline-link">Ver</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </aside>
     </div>

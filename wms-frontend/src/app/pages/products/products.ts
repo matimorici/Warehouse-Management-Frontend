@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ProductForm, ProductInfo, ProductService } from '../../services/product.service';
 import { ProviderForm, ProviderService } from '../../services/provider.service';
+import { PageTopbarComponent } from '../../shared/page-topbar';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PageTopbarComponent],
   templateUrl: './products.html',
 })
 export class ProductsComponent implements OnInit {

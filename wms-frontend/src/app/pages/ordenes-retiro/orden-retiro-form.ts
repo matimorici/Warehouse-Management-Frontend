@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { OrdenRetiroService, OrdenRetiroCreate, LineaRetiroCreate } from '../../services/orden-retiro.service';
 import { ProductService, ProductInfo } from '../../services/product.service';
 import { AuthService, UserInfo } from '../../services/auth.service';
+import { PageTopbarComponent } from '../../shared/page-topbar';
 
 interface LineaForm {
   idProducto: number | null;
@@ -14,7 +15,7 @@ interface LineaForm {
 @Component({
   selector: 'app-orden-retiro-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, PageTopbarComponent],
   templateUrl: './orden-retiro-form.html',
 })
 export class OrdenRetiroFormComponent implements OnInit {

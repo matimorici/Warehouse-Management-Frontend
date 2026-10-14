@@ -1,14 +1,5 @@
 <div class="wms-shell">
-  <header class="wms-topbar">
-    <div class="wms-topbar-inner">
-      <div>
-        <p class="wms-section-label">Productos</p>
-        <h1 class="text-2xl font-bold text-gray-900">Carga de productos</h1>
-      </div>
-
-      <a routerLink="/admin" class="wms-action wms-action-secondary">Volver al panel</a>
-    </div>
-  </header>
+  <app-page-topbar section="Productos" />
 
   <main class="wms-content pb-10">
     <div class="wms-page-heading"><h1>Carga de productos</h1><p>Registrá artículos y mantené actualizado el inventario.</p></div>
@@ -201,12 +192,10 @@
               <td class="px-3 py-2">{{ product.cantidadDisponible }}</td>
               <td class="px-3 py-2">{{ product.cantidadPendiente }}</td>
               <td class="px-3 py-2">
-                <button
-                  (click)="editProduct(product)"
-                  class="wms-inline-link"
-                >
-                  Editar
-                </button>
+                <div class="flex items-center gap-3">
+                  <button (click)="editProduct(product)" class="wms-inline-link">Editar</button>
+                  <a [routerLink]="['/productos', product.idProducto]" class="wms-inline-link">Ver stock</a>
+                </div>
               </td>
             </tr>
           </tbody>

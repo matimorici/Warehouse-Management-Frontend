@@ -1,0 +1,26 @@
+<div class="wms-shell">
+  <header class="wms-topbar">
+    <div class="wms-topbar-inner">
+      <a class="wms-mark" [routerLink]="homeRoute">
+        <span>
+          <strong>Gestión de almacén</strong>
+          <span>Acceso restringido</span>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading">
+      <h1>No tenés acceso a esta sección</h1>
+      <p>
+        Error 403: tu rol no tiene permisos para ver esta página. Volvé a tu panel para continuar tu
+        turno.
+      </p>
+    </div>
+
+    <div class="wms-panel wms-form-panel max-w-xl">
+      <a [routerLink]="homeRoute" class="wms-action wms-action-success">Volver a mi panel</a>
+    </div>
+  </main>
+</div>

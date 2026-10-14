@@ -1,0 +1,93 @@
+<div class="wms-shell">
+  <app-page-topbar section="Ubicaciones" />
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading">
+      <h1>Ubicaciones</h1>
+      <p>Organizá los sectores, estantes y posiciones físicas dentro del depósito.</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <section class="wms-panel">
+        <div class="wms-panel-title">
+          <h2>Ubicaciones registradas</h2>
+          <p>{{ locations.length }} en total</p>
+        </div>
+
+        <p *ngIf="loading" class="p-5 text-sm text-gray-600">Cargando ubicaciones...</p>
+        <p *ngIf="!loading && listMessage" class="p-5 text-sm text-gray-600">{{ listMessage }}</p>
+
+        <div class="wms-table-wrap border-0" *ngIf="!loading && locations.length > 0">
+          <table class="wms-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let location of locations">
+                <td class="wms-number">{{ location.id }}</td>
+                <td>{{ location.name }}</td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <button type="button" class="wms-action wms-action-secondary wms-action-sm" (click)="editLocation(location)">
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="wms-action wms-action-danger wms-action-sm"
+                      (click)="deleteLocation(location.id)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="wms-panel wms-form-panel">
+        <h2>{{ editingId !== null ? 'Editar ubicación' : 'Nueva ubicación' }}</h2>
+
+        <form #locationForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
+          <div class="wms-field">
+            <label for="name">Nombre</label>
+            <input
+              id="name"
+              type="text"
+              [(ngModel)]="form.name"
+              name="name"
+              #nameModel="ngModel"
+              required
+              minlength="3"
+              maxlength="100"
+              placeholder="Ej: Pasillo A - Estante 3"
+            />
+            <p *ngIf="nameModel.touched && nameModel.errors?.['required']" class="wms-field-error">
+              El nombre no puede estar vacío
+            </p>
+            <p *ngIf="nameModel.touched && nameModel.errors?.['minlength']" class="wms-field-error">
+              El nombre debe tener al menos 3 caracteres
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="submit" class="wms-action wms-action-success" [disabled]="locationForm.invalid || saving">
+              {{ saving ? 'Guardando...' : editingId !== null ? 'Actualizar ubicación' : 'Guardar ubicación' }}
+            </button>
+            <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </aside>
+    </div>
+  </main>
+</div>

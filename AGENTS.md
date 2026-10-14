@@ -7,7 +7,7 @@
 - Build system: `@angular/build` (Vite-based, not Webpack).
 - Styling: Tailwind CSS v4 via `@tailwindcss/postcss` PostCSS plugin; `@import 'tailwindcss'` in `styles.css`.
 - Testing: Vitest via `@angular/build:unit-test`. Run with `npm test` (which runs `ng test`).
-- API base URL is hardcoded to `http://localhost:8080/api` in each service file.
+- API base URL is centralised in `src/app/shared/api-config.ts` (`API_BASE_URL = '/api'`); services import it. Dev requests are proxied to the backend.
 
 ## Commands (run from `wms-frontend/`)
 

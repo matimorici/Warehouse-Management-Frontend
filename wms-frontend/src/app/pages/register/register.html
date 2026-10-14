@@ -1,162 +1,137 @@
-<div [ngClass]="compact ? '' : 'wms-shell flex items-center justify-center'">
-  <div
-    [ngClass]="
-      compact
-        ? 'wms-panel wms-form-panel w-full'
-        : 'wms-panel wms-form-panel w-full max-w-md'
-    "
-  >
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar empleado</h2>
+<div class="wms-shell">
+  <app-page-topbar section="Registrar Operario" />
 
-    <div
-      *ngIf="errorMessage"
-      class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded mb-4 text-sm"
-    >
-      {{ errorMessage }}
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading">
+      <h1>Registrar Operario</h1>
+      <p>Creá una cuenta de acceso para el personal del depósito.</p>
     </div>
 
-    <div
-      *ngIf="successMessage"
-      class="bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded mb-4 text-sm"
-    >
-      {{ successMessage }}
+    <div class="wms-panel wms-form-panel max-w-2xl">
+      <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+
+      <form #registerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
+        <div class="wms-field">
+          <label for="nombre">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            [(ngModel)]="form.nombre"
+            name="nombre"
+            #nombreModel="ngModel"
+            required
+            minlength="3"
+            maxlength="150"
+          />
+          <p
+            *ngIf="nombreModel.touched && nombreModel.errors?.['required']"
+            class="wms-field-error"
+          >
+            El nombre no puede estar vacío
+          </p>
+          <p
+            *ngIf="
+              nombreModel.touched &&
+              (nombreModel.errors?.['minlength'] || nombreModel.errors?.['maxlength'])
+            "
+            class="wms-field-error"
+          >
+            El nombre debe tener entre 3 y 150 caracteres
+          </p>
+        </div>
+
+        <div class="wms-field">
+          <label for="apellido">Apellido</label>
+          <input
+            id="apellido"
+            type="text"
+            [(ngModel)]="form.apellido"
+            name="apellido"
+            #apellidoModel="ngModel"
+            required
+            minlength="3"
+            maxlength="150"
+          />
+          <p
+            *ngIf="apellidoModel.touched && apellidoModel.errors?.['required']"
+            class="wms-field-error"
+          >
+            El apellido no puede estar vacío
+          </p>
+          <p
+            *ngIf="
+              apellidoModel.touched &&
+              (apellidoModel.errors?.['minlength'] || apellidoModel.errors?.['maxlength'])
+            "
+            class="wms-field-error"
+          >
+            El apellido debe tener entre 3 y 150 caracteres
+          </p>
+        </div>
+
+        <div class="wms-field">
+          <label for="cuil">CUIL</label>
+          <input
+            id="cuil"
+            type="text"
+            [(ngModel)]="form.cuil"
+            name="cuil"
+            #cuilModel="ngModel"
+            placeholder="20-12345678-9"
+            required
+            [pattern]="cuilPattern"
+          />
+          <p *ngIf="cuilModel.touched && cuilModel.errors?.['required']" class="wms-field-error">
+            El CUIL no puede estar vacío
+          </p>
+          <p *ngIf="cuilModel.touched && cuilModel.errors?.['pattern']" class="wms-field-error">
+            El CUIL no tiene un formato válido (ej: 20-12345678-9)
+          </p>
+        </div>
+
+        <div class="wms-field">
+          <label for="contrasena">Contraseña</label>
+          <input
+            id="contrasena"
+            type="password"
+            [(ngModel)]="form.contrasena"
+            name="contrasena"
+            #contrasenaModel="ngModel"
+            required
+            minlength="8"
+            [pattern]="passwordPattern"
+          />
+          <p
+            *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['required']"
+            class="wms-field-error"
+          >
+            La contraseña no puede estar vacía
+          </p>
+          <p
+            *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['minlength']"
+            class="wms-field-error"
+          >
+            La contraseña debe tener al menos 8 caracteres
+          </p>
+          <p
+            *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['pattern']"
+            class="wms-field-error"
+          >
+            La contraseña debe tener al menos 8 caracteres, una mayúscula y un número
+          </p>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            class="wms-action wms-action-success"
+            [disabled]="registerForm.invalid"
+          >
+            Crear operario
+          </button>
+        </div>
+      </form>
     </div>
-
-    <form #registerForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-4" novalidate>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-        <input
-          type="text"
-          [(ngModel)]="form.nombre"
-          name="nombre"
-          #nombreModel="ngModel"
-          required
-          minlength="3"
-          maxlength="150"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="nombreModel.touched && nombreModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El nombre no puede estar vacío
-        </p>
-        <p
-          *ngIf="nombreModel.touched && nombreModel.errors?.['minlength']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El nombre debe tener entre 3 y 150 caracteres
-        </p>
-        <p
-          *ngIf="nombreModel.touched && nombreModel.errors?.['maxlength']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El nombre debe tener entre 3 y 150 caracteres
-        </p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
-        <input
-          type="text"
-          [(ngModel)]="form.apellido"
-          name="apellido"
-          #apellidoModel="ngModel"
-          required
-          minlength="3"
-          maxlength="150"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="apellidoModel.touched && apellidoModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El apellido no puede estar vacío
-        </p>
-        <p
-          *ngIf="apellidoModel.touched && apellidoModel.errors?.['minlength']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El apellido debe tener entre 3 y 150 caracteres
-        </p>
-        <p
-          *ngIf="apellidoModel.touched && apellidoModel.errors?.['maxlength']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El apellido debe tener entre 3 y 150 caracteres
-        </p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">CUIL</label>
-        <input
-          type="text"
-          [(ngModel)]="form.cuil"
-          name="cuil"
-          #cuilModel="ngModel"
-          placeholder="20-12345678-9"
-          required
-          [pattern]="cuilPattern"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="cuilModel.touched && cuilModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El CUIL no puede estar vacío
-        </p>
-        <p
-          *ngIf="cuilModel.touched && cuilModel.errors?.['pattern']"
-          class="mt-1 text-sm text-red-600"
-        >
-          El CUIL no tiene un formato válido (ej: 20-12345678-9)
-        </p>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-        <input
-          type="password"
-          [(ngModel)]="form.contrasena"
-          name="contrasena"
-          #contrasenaModel="ngModel"
-          required
-          minlength="8"
-          [pattern]="passwordPattern"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <p
-          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['required']"
-          class="mt-1 text-sm text-red-600"
-        >
-          La contraseña no puede estar vacía
-        </p>
-        <p
-          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['minlength']"
-          class="mt-1 text-sm text-red-600"
-        >
-          La contraseña debe tener al menos 8 caracteres
-        </p>
-        <p
-          *ngIf="contrasenaModel.touched && contrasenaModel.errors?.['pattern']"
-          class="mt-1 text-sm text-red-600"
-        >
-          La contraseña debe tener al menos 8 caracteres, una mayúscula y un número
-        </p>
-      </div>
-
-      <button
-        type="submit"
-        [disabled]="registerForm.invalid"
-        class="wms-action wms-action-success w-full disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Registrarse
-      </button>
-    </form>
-
-    <p *ngIf="showLoginLink" class="text-sm text-center text-gray-500 mt-4">
-      ¿Ya tenés cuenta?
-      <a routerLink="/login" class="wms-inline-link"> Iniciá sesión </a>
-    </p>
-  </div>
+  </main>
 </div>

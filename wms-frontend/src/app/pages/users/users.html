@@ -1,0 +1,60 @@
+<div class="wms-shell">
+  <app-page-topbar section="Usuarios" />
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading flex items-end justify-between gap-4">
+      <div>
+        <h1>Usuarios</h1>
+        <p>Consultá y administrá las cuentas de acceso al sistema.</p>
+      </div>
+      <a routerLink="/registrar" class="wms-action wms-action-success">Registrar Operario</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+
+    <p *ngIf="loading" class="wms-empty">Cargando usuarios...</p>
+    <p *ngIf="!loading && listMessage" class="wms-empty">{{ listMessage }}</p>
+
+    <div class="wms-table-wrap" *ngIf="!loading && users.length > 0">
+      <table class="wms-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>CUIL</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td class="wms-number">{{ user.idUsuario }}</td>
+            <td>{{ user.nombre }}</td>
+            <td>{{ user.apellido }}</td>
+            <td class="wms-number">{{ user.cuil }}</td>
+            <td>
+              <span
+                class="wms-status"
+                [ngClass]="user.rol === 'ADMINISTRADOR' ? 'wms-status-neutral' : 'wms-status-ok'"
+              >
+                {{ roleLabel(user.rol) }}
+              </span>
+            </td>
+            <td>
+              <button
+                type="button"
+                class="wms-action wms-action-danger wms-action-sm"
+                (click)="deleteUser(user)"
+                [disabled]="user.idUsuario === currentUserId"
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

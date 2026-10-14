@@ -1,0 +1,64 @@
+<div class="wms-shell">
+  <app-page-topbar section="Órdenes de compra" />
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading flex items-end justify-between gap-4">
+      <div>
+        <h1>Órdenes de compra</h1>
+        <p>Cargá pedidos a proveedores y registrá su recepción para actualizar el stock.</p>
+      </div>
+      <a routerLink="/ordenes-compra/nuevo" class="wms-action wms-action-success">Nueva orden de compra</a>
+    </div>
+
+    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+
+    <p *ngIf="loading" class="wms-empty">Cargando órdenes de compra...</p>
+    <p *ngIf="!loading && listMessage" class="wms-empty">{{ listMessage }}</p>
+
+    <div class="wms-table-wrap" *ngIf="!loading && orders.length > 0">
+      <table class="wms-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha / Hora</th>
+            <th>Proveedor</th>
+            <th>Líneas</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td class="wms-number">{{ order.idPurchaseOrder }}</td>
+            <td>{{ order.dateTime }}</td>
+            <td>{{ providerName(order.idSupplier) }}</td>
+            <td>{{ lineSummary(order) }}</td>
+            <td>
+              <span class="wms-status" [ngClass]="statusClass(order.status)">
+                {{ statusLabel(order.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <a
+                  [routerLink]="['/ordenes-compra', order.idPurchaseOrder]"
+                  class="wms-action wms-action-secondary wms-action-sm"
+                >
+                  Ver
+                </a>
+                <button
+                  type="button"
+                  class="wms-action wms-action-danger wms-action-sm"
+                  (click)="deleteOrder(order.idPurchaseOrder)"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, timeout, catchError } from 'rxjs';
+import { API_BASE_URL } from '../shared/api-config';
 
 export interface ProviderForm {
-  idProveedor?: string;
+  idProveedor?: number;
   cuit: string;
   razonSocial: string;
   telefono: string;
@@ -15,12 +16,22 @@ export interface ProviderForm {
   providedIn: 'root',
 })
 export class ProviderService {
-  private apiUrl = '/api';
+  private get apiUrl(): string {
+    return API_BASE_URL;
+  }
 
   constructor(private http: HttpClient) {}
 
   createProvider(data: ProviderForm): Observable<any> {
     return this.http.post(`${this.apiUrl}/proveedores`, data);
+  }
+
+  updateProvider(id: number, data: ProviderForm): Observable<any> {
+    return this.http.put(`${this.apiUrl}/proveedores/${id}`, data);
+  }
+
+  deleteProvider(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/proveedores/${id}`);
   }
 
   getProviders(): Observable<ProviderForm[]> {

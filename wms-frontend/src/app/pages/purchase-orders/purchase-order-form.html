@@ -1,0 +1,162 @@
+<div class="wms-shell">
+  <app-page-topbar
+    section="Órdenes de compra"
+    backLabel="Volver al listado"
+    backRoute="/ordenes-compra"
+  />
+
+  <main class="wms-content pb-10">
+    <div class="wms-page-heading flex items-end justify-between gap-4">
+      <div>
+        <h1>{{ isEditMode ? 'Orden de compra #' + orderId : 'Nueva orden de compra' }}</h1>
+        <p *ngIf="isEditMode && order">
+          Registrada el {{ order.dateTime }}.
+        </p>
+        <p *ngIf="!isEditMode">Cargá el proveedor y las líneas de productos a pedir.</p>
+      </div>
+      <span *ngIf="isEditMode && order" class="wms-status" [ngClass]="statusClass(status)">
+        {{ statusLabel(status) }}
+      </span>
+    </div>
+
+    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+
+    <p *ngIf="loadingOrder" class="wms-empty">Cargando orden de compra...</p>
+
+    <div *ngIf="!loadingOrder" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <section class="wms-panel wms-form-panel">
+        <h2>Datos de la orden</h2>
+
+        <p *ngIf="!isEditable" class="wms-warning mb-4">
+          Esta orden ya fue {{ statusLabel(status).toLowerCase() }} y no admite modificaciones.
+        </p>
+
+        <form #orderForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-6" novalidate>
+          <div class="wms-field">
+            <label for="idSupplier">Proveedor</label>
+            <select
+              id="idSupplier"
+              name="idSupplier"
+              [(ngModel)]="form.idSupplier"
+              #supplierModel="ngModel"
+              required
+              [disabled]="loadingProviders || providers.length === 0 || !isEditable"
+            >
+              <option [ngValue]="null">
+                {{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}
+              </option>
+              <option *ngFor="let provider of providers" [ngValue]="provider.idProveedor">
+                {{ provider.razonSocial }} - {{ provider.cuit }}
+              </option>
+            </select>
+            <p *ngIf="supplierModel.touched && supplierModel.errors?.['required']" class="wms-field-error">
+              Tenés que seleccionar un proveedor
+            </p>
+          </div>
+
+          <div>
+            <div class="mb-2 flex items-center justify-between">
+              <span class="wms-section-label">Líneas de compra</span>
+              <button
+                type="button"
+                class="wms-action wms-action-secondary wms-action-sm"
+                (click)="addLine()"
+                [disabled]="!isEditable"
+              >
+                Agregar línea
+              </button>
+            </div>
+
+            <div *ngIf="form.lines.length === 0" class="wms-empty">
+              No hay líneas cargadas. Agregá al menos una línea de producto.
+            </div>
+
+            <div *ngFor="let line of form.lines; let i = index" class="wms-line-editor">
+              <div class="wms-field min-w-[220px] flex-1">
+                <label [for]="'idProduct_' + i">Producto</label>
+                <select
+                  [id]="'idProduct_' + i"
+                  [(ngModel)]="line.idProduct"
+                  [name]="'idProduct_' + i"
+                  required
+                  [disabled]="loadingProducts || products.length === 0 || !isEditable"
+                >
+                  <option [ngValue]="null">
+                    {{ loadingProducts ? 'Cargando productos...' : 'Seleccioná un producto' }}
+                  </option>
+                  <option *ngFor="let product of products" [ngValue]="product.idProducto">
+                    {{ product.nombreProducto }} - {{ product.codigoBarras }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="wms-field w-32">
+                <label [for]="'amount_' + i">Cantidad</label>
+                <input
+                  [id]="'amount_' + i"
+                  type="number"
+                  [(ngModel)]="line.amount"
+                  [name]="'amount_' + i"
+                  required
+                  min="1"
+                  [disabled]="!isEditable"
+                />
+              </div>
+
+              <button
+                type="button"
+                class="wms-action wms-action-danger wms-action-sm mb-0.5"
+                (click)="removeLine(i)"
+                [disabled]="!isEditable"
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3" *ngIf="isEditable">
+            <button type="submit" class="wms-action wms-action-success" [disabled]="orderForm.invalid || saving">
+              {{ saving ? 'Guardando...' : isEditMode ? 'Actualizar orden' : 'Crear orden' }}
+            </button>
+            <a routerLink="/ordenes-compra" class="wms-action wms-action-secondary">Cancelar</a>
+          </div>
+        </form>
+      </section>
+
+      <aside class="wms-panel wms-form-panel" *ngIf="isEditMode && order">
+        <h2>Recepción</h2>
+        <p class="wms-field-hint mb-4">
+          Al recibir la orden, la cantidad de cada línea se suma al stock disponible del producto.
+        </p>
+        <button
+          *ngIf="canReceive"
+          type="button"
+          class="wms-action wms-action-success w-full"
+          (click)="openReceiveDialog()"
+        >
+          Recibir mercadería
+        </button>
+        <p *ngIf="!canReceive" class="text-sm text-gray-600">
+          La orden ya no está pendiente de recepción.
+        </p>
+      </aside>
+    </div>
+  </main>
+
+  <div class="wms-dialog-backdrop" *ngIf="showReceiveDialog" (click)="cancelReceive()">
+    <div class="wms-dialog" (click)="$event.stopPropagation()">
+      <div class="wms-dialog-title">Confirmar recepción</div>
+      <div class="wms-dialog-body">
+        Se sumarán las cantidades de las {{ form.lines.length }} líneas al stock disponible de cada
+        producto. Esta acción no se puede deshacer.
+      </div>
+      <div class="wms-dialog-actions">
+        <button type="button" class="wms-action wms-action-secondary" (click)="cancelReceive()">Cancelar</button>
+        <button type="button" class="wms-action wms-action-success" (click)="confirmReceive()">
+          Confirmar recepción
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

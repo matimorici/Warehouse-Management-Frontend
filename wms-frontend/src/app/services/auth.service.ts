@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { API_BASE_URL } from '../shared/api-config';
 
 export type UserRole = 'ADMIN' | 'OPERARIO';
 
@@ -8,7 +9,9 @@ export type UserRole = 'ADMIN' | 'OPERARIO';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = '/api';
+  private get apiUrl(): string {
+    return API_BASE_URL;
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -25,6 +28,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/login`, data);
   }
 
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/logout`, {});
+  }
+
   saveSession(data: unknown): void {
     const role = this.extractRole(data);
 
@@ -33,10 +40,43 @@ export class AuthService {
     } else {
       localStorage.removeItem('userRole');
     }
+
+    const id = this.findFirstNumber(data, ['idUsuario', 'id', 'idUser', 'id_usuario']);
+    if (id !== null) {
+      localStorage.setItem('userId', String(id));
+    }
+
+    const name = this.extractFullName(data);
+    if (name) {
+      localStorage.setItem('userName', name);
+    }
+  }
+
+  clearSession(): void {
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
   }
 
   getUserRole(): UserRole | null {
     return this.normalizeRole(localStorage.getItem('userRole'));
+  }
+
+  isAuthenticated(): boolean {
+    return this.getUserRole() !== null;
+  }
+
+  getCurrentUserId(): number | null {
+    const raw = localStorage.getItem('userId');
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  getCurrentUserName(): string {
+    return localStorage.getItem('userName') ?? '';
   }
 
   getHomeRouteByRole(role: UserRole | null): string {
@@ -52,9 +92,55 @@ export class AuthService {
   }
 
   private extractRole(data: unknown): UserRole | null {
-    const roleValue = this.findFirstString(data, ['role', 'rol', 'tipoUsuario', 'tipo_usuario', 'tipo']);
+    const roleValue = this.findFirstString(data, [
+      'role',
+      'rol',
+      'tipoUsuario',
+      'tipo_usuario',
+      'tipo',
+    ]);
 
     return this.normalizeRole(roleValue);
+  }
+
+  private findFirstNumber(data: unknown, keys: string[]): number | null {
+    if (!this.isRecord(data)) {
+      return null;
+    }
+
+    for (const key of keys) {
+      const value = data[key];
+
+      if (typeof value === 'number') {
+        return value;
+      }
+
+      if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) {
+        return Number(value);
+      }
+    }
+
+    for (const key of ['usuario', 'user', 'empleado']) {
+      const nestedValue = this.findFirstNumber(data[key], keys);
+
+      if (nestedValue !== null) {
+        return nestedValue;
+      }
+    }
+
+    return null;
+  }
+
+  private extractFullName(data: unknown): string | null {
+    if (!this.isRecord(data)) {
+      return null;
+    }
+
+    const nombre = typeof data['nombre'] === 'string' ? data['nombre'] : '';
+    const apellido = typeof data['apellido'] === 'string' ? data['apellido'] : '';
+    const combined = `${nombre} ${apellido}`.trim();
+
+    return combined || null;
   }
 
   private findFirstString(data: unknown, keys: string[]): string | null {
@@ -96,9 +182,13 @@ export class AuthService {
   }
 
   getUsers(): Observable<UserInfo[]> {
-    return this.http.get<unknown>(`${this.apiUrl}/usuarios`).pipe(
-      map((response) => this.normalizeUsers(response)),
-    );
+    return this.http
+      .get<unknown>(`${this.apiUrl}/usuarios`)
+      .pipe(map((response) => this.normalizeUsers(response)));
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/usuarios/${id}`);
   }
 
   private normalizeUsers(response: unknown): UserInfo[] {
@@ -123,4 +213,5 @@ export interface UserInfo {
   nombre: string;
   apellido: string;
   cuil: string;
+  rol?: string;
 }

@@ -16,14 +16,9 @@
 
 ## 🟡 Medium
 
-- [ ] **Hardcoded API URL in 4 services**
-  Each service repeats `private apiUrl = 'http://localhost:8080/api'`:
-  - `src/app/services/auth.service.ts:11`
-  - `src/app/services/product.service.ts:25`
-  - `src/app/services/provider.service.ts:19`
-  - `src/app/services/orden-retiro.service.ts:38`
-  Fix: Centralise via an injection token, environment file, or a shared config service.
-  → **SKIPPED** per request.
+- [x] **Hardcoded API URL duplicated across services**
+  Every service repeated the base URL literal. It was first moved to a relative `'/api'` (dev proxy), then centralised.
+  → **Resolved:** added `src/app/shared/api-config.ts` exporting `API_BASE_URL = '/api'`. All 8 services (`auth`, `product`, `provider`, `orden-retiro`, `location`, `physical-movement`, `purchase-order`, `supplier-rating`) now do `private apiUrl = API_BASE_URL;`, and `app.ts` uses `${API_BASE_URL}/productos`. Base URL changes now happen in one place.
 
 - [x] **Missing spec files for 7/10 components**
   Missing specs for `home`, `admin-home`, `operator-home`, `products`, `providers`, `ordenes-retiro`, `orden-retiro-form`.
@@ -63,27 +58,27 @@
   `login.css` and `register.css` existed on disk with no `styleUrl` reference.
   → **Resolved (verified):** both files no longer exist.
 
-## 📄 Pages / surfaces not yet built
+## 📄 Pages / surfaces
 
-Already built: login (`/login`), register (`/register`), admin home (`/admin`), operator home (`/operario`), productos list+form (`/productos`), proveedores create-form (`/proveedores`), órdenes de retiro list+form (`/ordenes-retiro`, `/ordenes-retiro/nuevo`, `/ordenes-retiro/:id`).
+Already built (pre-existing): login (`/login`), productos list+form (`/productos`), órdenes de retiro list+form (`/ordenes-retiro`, `/ordenes-retiro/nuevo`, `/ordenes-retiro/:id`).
 
-- [ ] **Dashboard / Home real** — `/home` is a stub that only redirects. Post-login landing showing key data (stock, pending orders). Route guessed from LOGIN redirect; decide auth-guard + post-login routing.
-- [ ] **Logout action** — no logout exists anywhere (no button, no `POST /api/auth/logout` call). Add as header action, not a page.
-- [ ] **Producto detail (stock)** — `GET /api/productos/{id}/stock`, editable stock (`PUT …/stock`), barcode image (`GET …/barcode`). Current `productos` page only has form + inline table.
-- [ ] **Proveedores list** — `GET /api/proveedores`. Only the create form exists; no list/edit.
-- [ ] **Ubicaciones list** — `GET /api/ubicaciones`.
-- [ ] **Ubicación form** — create/edit.
-- [ ] **Valoraciones de proveedor list** — `GET /api/valoraciones-proveedor`, filterable by supplier.
-- [ ] **Valoración form** — create/edit.
-- [ ] **Órdenes de compra list** — `GET /api/ordenes-compra` (summaries + status).
-- [ ] **Orden de compra form** — create/edit, lines of product + amount.
-- [ ] **Orden de compra detail** — with "Recibir" action (`PUT /api/ordenes-compra/{id}/recibir`).
-- [ ] **Receiving confirmation** — modal updating stock; can live on compra detail.
-- [ ] **Movimientos físicos list** — `GET /api/movimientos-fisicos`, filters: product, user, date range.
-- [ ] **Registrar movimiento** form — `POST`, append-only event.
-- [ ] **Usuarios list** — `GET /api/usuarios` (admin-only).
-- [ ] **Usuario form** — create/edit, set role/rol (admin-only).
-- [ ] **Not-found / 403 page** — routing is role-gated (OPERARIO vs ADMINISTRADOR); no error page exists. `**` currently redirects to login.
+Built in this pass — routes, guards and components (see `src/app/app.routes.ts`):
+
+- [x] **Auth guard + role guard** — `authGuard` / `roleGuard(roles)` in `services/auth.guard.ts`; all operational routes require auth, admin routes (`/admin`, `/register`, `/usuarios`, `/proveedores`) require `ADMIN`, `/operario` requires `OPERARIO`. Unauthorised → `/login`, wrong role → `/sin-acceso`.
+- [x] **Logout action** — shared `PageTopbarComponent` (`shared/page-topbar.ts`) with a "Cerrar sesión" button calling `POST /api/auth/logout`, clearing the local session and returning to `/login`. Retrofitted onto every page.
+- [x] **Dashboard / Home** — `/home` still just redirects by role; the real landing is `/admin` (live summary: products, stock units, purchase-order statuses, withdrawal orders, movements, locations, plus a "sin stock" table) and `/operario` (task launcher).
+- [x] **Producto detail (stock)** — `/productos/:id` (`GET /api/productos/{id}`, stock `GET/PUT …/stock`, barcode `GET …/barcode`). Linked from the productos table ("Ver stock").
+- [x] **Proveedores list + edit** — `/proveedores` rewritten with list, create, edit and delete.
+- [x] **Ubicaciones list + form** — `/ubicaciones` list/create/edit/delete.
+- [x] **Valoraciones de proveedor list + form** — `/valoraciones-proveedor`, filterable by supplier, create/edit/delete.
+- [x] **Órdenes de compra list + form + detail + receiving** — `/ordenes-compra`, `/ordenes-compra/nuevo`, `/ordenes-compra/:id`; status badges and a receive-confirmation dialog (`PUT /api/ordenes-compra/{id}/recibir`).
+- [x] **Movimientos físicos list + registrar** — `/movimientos-fisicos`, filters (product, user, date range) and an append-only create form.
+- [x] **Usuarios list** — `/usuarios` (admin-only) with delete (self-delete blocked).
+- [x] **Usuario creation** — reuses `/register` (create-only). Role assignment/edit is **not** possible: `UserController` has no update/role endpoint and new users default to `OPERARIO`.
+- [x] **Not-found / 403 page** — `/sin-acceso` (`ForbiddenComponent`) and wildcard `**` → `NotFoundComponent`.
+- [x] **Specs** — creation specs for every new component (`product-detail`, `locations`, `supplier-ratings`, `purchase-orders`, `purchase-order-form`, `physical-movements`, `users`, `forbidden`, `not-found`, `page-topbar`); `operator-home.spec.ts` updated with `provideHttpClient()` / `provideHttpClientTesting()`.
+
+> Verified: `npm run build` clean and `npm test` → 20 spec files / 21 tests pass. Node isn't on the sandbox `PATH`; use the portable binary at `/tmp/opencode/node/bin` (prefix `PATH`) when running commands from `wms-frontend/`.
 
 ## ✅ Already fixed
 

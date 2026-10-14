@@ -1,20 +1,16 @@
 <div class="wms-shell">
-  <header class="wms-topbar">
-    <div class="wms-topbar-inner">
-      <div>
-        <p class="wms-section-label">Órdenes de retiro</p>
-        <h1 class="text-2xl font-bold text-white">
-          {{ isEditMode ? 'Editar orden de retiro' : 'Nueva orden de retiro' }}
-        </h1>
-      </div>
-
-      <a routerLink="/ordenes-retiro" class="wms-action wms-action-secondary">
-        Volver al listado
-      </a>
-    </div>
-  </header>
+  <app-page-topbar
+    section="Órdenes de retiro"
+    backLabel="Volver al listado"
+    backRoute="/ordenes-retiro"
+  />
 
   <main class="wms-content pb-10">
+    <div class="wms-page-heading">
+      <h1>{{ isEditMode ? 'Editar orden de retiro' : 'Nueva orden de retiro' }}</h1>
+      <p>Seleccioná el usuario y cargá las líneas de productos a retirar.</p>
+    </div>
+
     <div *ngIf="errorMessage" class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
       {{ errorMessage }}
     </div>
