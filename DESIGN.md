@@ -82,7 +82,7 @@ Shared classes in `src/styles.css` define the shell (`wms-shell`), dark topbar (
 
 ## Responsive Rules
 
-Desktop layouts stay dense within a `1180px` content measure. At narrow widths, navigation actions wrap naturally, two-column work areas become one column, and the login remains a single bordered panel below the compact application bar.
+Desktop layouts stay dense within a `1180px` content measure. The admin panel opts into the shared `wms-content-wide` variant, which raises its maximum measure to `1360px` so its alert and navigation sections use wide desktop screens effectively; other pages keep the default measure. At narrow widths, navigation actions wrap naturally, two-column work areas become one column, and the login remains a single bordered panel below the compact application bar.
 
 ## Do's and Don'ts
 

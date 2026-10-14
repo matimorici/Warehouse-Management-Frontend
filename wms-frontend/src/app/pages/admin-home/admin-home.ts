@@ -2,13 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductInfo, ProductService } from '../../services/product.service';
-import { LocationInfo, LocationService } from '../../services/location.service';
-import {
-  PhysicalMovementInfo,
-  PhysicalMovementService,
-} from '../../services/physical-movement.service';
 import { PurchaseOrderInfo, PurchaseOrderService } from '../../services/purchase-order.service';
-import { OrdenRetiroResponse, OrdenRetiroService } from '../../services/orden-retiro.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
 
 type SourceState = 'loading' | 'error' | 'empty' | 'data';
@@ -17,6 +11,7 @@ interface AdminSection {
   label: string;
   description: string;
   route: string;
+  badge?: () => string | null;
 }
 
 interface AdminGroup {
@@ -46,6 +41,10 @@ export class AdminHomeComponent implements OnInit {
           label: 'Órdenes de compra',
           description: 'Cargá pedidos a proveedores y registrá su recepción.',
           route: '/ordenes-compra',
+          badge: () =>
+            this.purchaseOrdersState() === 'data' && this.pendingPurchaseOrders > 0
+              ? String(this.pendingPurchaseOrders)
+              : null,
         },
         {
           label: 'Movimientos físicos',
@@ -62,6 +61,10 @@ export class AdminHomeComponent implements OnInit {
           label: 'Productos',
           description: 'Cargá artículos y mantené actualizado el inventario.',
           route: '/productos',
+          badge: () =>
+            this.productsState() === 'data' && this.outOfStockProducts.length > 0
+              ? 'Revisar'
+              : null,
         },
         {
           label: 'Proveedores',
@@ -80,51 +83,33 @@ export class AdminHomeComponent implements OnInit {
         },
       ],
     },
+    {
+      title: 'Administración',
+      hint: 'Cuentas y personal',
+      sections: [
+        {
+          label: 'Usuarios',
+          description: 'Consultá y administrá las cuentas existentes.',
+          route: '/usuarios',
+        },
+      ],
+    },
   ];
-
-  readonly adminGroup: AdminGroup = {
-    title: 'Administración',
-    hint: 'Cuentas y personal',
-    sections: [
-      {
-        label: 'Registrar operario',
-        description: 'Creá una cuenta de acceso para el personal del depósito.',
-        route: '/registrar',
-      },
-      {
-        label: 'Usuarios',
-        description: 'Consultá y administrá las cuentas existentes.',
-        route: '/usuarios',
-      },
-    ],
-  };
 
   readonly products = signal<ProductInfo[]>([]);
   readonly purchaseOrders = signal<PurchaseOrderInfo[]>([]);
-  readonly withdrawalOrders = signal<OrdenRetiroResponse[]>([]);
-  readonly movements = signal<PhysicalMovementInfo[]>([]);
-  readonly locations = signal<LocationInfo[]>([]);
 
   readonly productsState = signal<SourceState>('loading');
   readonly purchaseOrdersState = signal<SourceState>('loading');
-  readonly withdrawalOrdersState = signal<SourceState>('loading');
-  readonly movementsState = signal<SourceState>('loading');
-  readonly locationsState = signal<SourceState>('loading');
 
   constructor(
     private productService: ProductService,
-    private locationService: LocationService,
-    private movementService: PhysicalMovementService,
     private purchaseOrderService: PurchaseOrderService,
-    private withdrawalOrderService: OrdenRetiroService,
   ) {}
 
   ngOnInit(): void {
     this.loadProducts();
     this.loadPurchaseOrders();
-    this.loadWithdrawalOrders();
-    this.loadMovements();
-    this.loadLocations();
   }
 
   get outOfStockProducts(): ProductInfo[] {
@@ -133,10 +118,6 @@ export class AdminHomeComponent implements OnInit {
 
   get pendingPurchaseOrders(): number {
     return this.purchaseOrders().filter((order) => order.status === 'PENDIENTE').length;
-  }
-
-  get receivedPurchaseOrders(): number {
-    return this.purchaseOrders().filter((order) => order.status === 'RECIBIDA').length;
   }
 
   loadProducts(): void {
@@ -165,51 +146,6 @@ export class AdminHomeComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar órdenes de compra del panel:', error);
         this.purchaseOrdersState.set('error');
-      },
-    });
-  }
-
-  loadWithdrawalOrders(): void {
-    this.withdrawalOrdersState.set('loading');
-    this.withdrawalOrders.set([]);
-    this.withdrawalOrderService.list().subscribe({
-      next: (orders) => {
-        this.withdrawalOrders.set(orders);
-        this.withdrawalOrdersState.set(orders.length === 0 ? 'empty' : 'data');
-      },
-      error: (error) => {
-        console.error('Error al cargar órdenes de retiro del panel:', error);
-        this.withdrawalOrdersState.set('error');
-      },
-    });
-  }
-
-  loadMovements(): void {
-    this.movementsState.set('loading');
-    this.movements.set([]);
-    this.movementService.list().subscribe({
-      next: (movements) => {
-        this.movements.set(movements);
-        this.movementsState.set(movements.length === 0 ? 'empty' : 'data');
-      },
-      error: (error) => {
-        console.error('Error al cargar movimientos físicos del panel:', error);
-        this.movementsState.set('error');
-      },
-    });
-  }
-
-  loadLocations(): void {
-    this.locationsState.set('loading');
-    this.locations.set([]);
-    this.locationService.list().subscribe({
-      next: (locations) => {
-        this.locations.set(locations);
-        this.locationsState.set(locations.length === 0 ? 'empty' : 'data');
-      },
-      error: (error) => {
-        console.error('Error al cargar ubicaciones del panel:', error);
-        this.locationsState.set('error');
       },
     });
   }

@@ -88,6 +88,10 @@ textarea:focus-visible {
   margin: 0 auto;
 }
 
+.wms-content.wms-content-wide {
+  width: min(1360px, calc(100% - 40px));
+}
+
 .wms-topbar-inner {
   display: flex;
   align-items: center;
@@ -135,6 +139,18 @@ textarea:focus-visible {
 
 .wms-page-heading {
   padding: 34px 0 24px;
+}
+
+.wms-page-heading-compact {
+  padding: 18px 0 14px;
+}
+
+.wms-page-heading-compact h1 {
+  font-size: 1.7rem;
+}
+
+.wms-muted-text {
+  color: var(--wms-muted);
 }
 
 .wms-page-heading h1 {
@@ -576,6 +592,7 @@ a.wms-launcher-row:hover .wms-launcher-cta {
   flex-shrink: 0;
   align-items: center;
   gap: 6px;
+  color: var(--wms-muted);
 }
 
 .wms-launcher-cta svg {
@@ -672,48 +689,24 @@ a.wms-task-card:hover {
   color: var(--wms-ink-soft);
 }
 
+.wms-alert-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wms-alert-block {
+  min-width: 0;
+  padding: 18px 20px;
+}
+
+.wms-alert-block + .wms-alert-block {
+  border-top: 1px solid var(--wms-line);
+}
+
 .wms-topbar-actions {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.wms-summary {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-}
-
-.wms-summary-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid #e1e6e9;
-  border-left: 0;
-  padding: 14px 18px;
-}
-
-.wms-summary-message {
-  border-bottom: 1px solid #e1e6e9;
-  padding: 14px 18px;
-  color: var(--wms-muted);
-  font-size: 0.82rem;
-}
-
-.wms-summary-row-label {
-  color: var(--wms-muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.wms-summary-row-value {
-  color: var(--wms-ink);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.15rem;
-  font-weight: 700;
 }
 
 .wms-empty {
@@ -831,6 +824,10 @@ a.wms-task-card:hover {
     width: min(100% - 32px, 1180px);
   }
 
+  .wms-content.wms-content-wide {
+    width: min(100% - 32px, 1360px);
+  }
+
   .wms-topbar-inner {
     flex-wrap: wrap;
     gap: 12px;
@@ -861,5 +858,16 @@ a.wms-task-card:hover {
 
   .wms-launcher-row-desc {
     font-size: 0.78rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .wms-alert-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wms-alert-block + .wms-alert-block {
+    border-top: 0;
+    border-left: 1px solid var(--wms-line);
   }
 }

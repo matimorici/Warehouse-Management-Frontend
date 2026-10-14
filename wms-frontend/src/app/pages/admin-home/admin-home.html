@@ -1,198 +1,85 @@
 <div class="wms-shell">
   <app-page-topbar section="Administración" [showBack]="false" />
 
-  <main class="wms-content pb-10">
-    <div class="wms-page-heading">
-      <h1>Panel de administración</h1>
-      <p>Accedé a las secciones de gestión y consultá los datos disponibles del depósito.</p>
+  <main class="wms-content wms-content-wide pb-10">
+    <div class="wms-page-heading wms-page-heading-compact">
+      <h1>Panel</h1>
+      <p>Accesos y alertas del depósito.</p>
     </div>
 
-    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <div class="space-y-6">
-        <section *ngFor="let group of mainGroups" class="wms-panel wms-launcher">
-          <div class="wms-panel-title">
-            <h2>{{ group.title }}</h2>
-            <p>{{ group.hint }}</p>
-          </div>
-
-          <a
-            *ngFor="let section of group.sections"
-            [routerLink]="section.route"
-            class="wms-launcher-row"
-          >
-            <span class="wms-launcher-row-main">
-              <span class="wms-launcher-row-name">{{ section.label }}</span>
-              <span class="wms-launcher-row-desc">{{ section.description }}</span>
-            </span>
-            <span class="wms-inline-link wms-launcher-cta">
-              Abrir
-              <svg
-                viewBox="0 0 16 16"
-                width="13"
-                height="13"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M6 3l5 5-5 5" />
-              </svg>
-            </span>
-          </a>
-        </section>
-
-        <section class="wms-panel wms-launcher">
-          <div class="wms-panel-title">
-            <h2>{{ adminGroup.title }}</h2>
-            <p>{{ adminGroup.hint }}</p>
-          </div>
-
-          <a
-            *ngFor="let section of adminGroup.sections"
-            [routerLink]="section.route"
-            class="wms-launcher-row"
-          >
-            <span class="wms-launcher-row-main">
-              <span class="wms-launcher-row-name">{{ section.label }}</span>
-              <span class="wms-launcher-row-desc">{{ section.description }}</span>
-            </span>
-            <span class="wms-inline-link wms-launcher-cta">
-              Abrir
-              <svg
-                viewBox="0 0 16 16"
-                width="13"
-                height="13"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M6 3l5 5-5 5" />
-              </svg>
-            </span>
-          </a>
-        </section>
+    <section class="wms-panel mb-6" aria-labelledby="admin-alerts-title">
+      <div class="wms-panel-title">
+        <h2 id="admin-alerts-title">Alertas</h2>
+        <p>Revisá compras pendientes y productos sin stock.</p>
       </div>
 
-      <aside class="space-y-6">
-        <section class="wms-panel">
-          <div class="wms-panel-title">
-            <h2>Resumen operativo</h2>
-          </div>
+      <div class="wms-alert-grid">
+        <section class="wms-alert-block" aria-labelledby="purchase-alert-title">
+          <h3 id="purchase-alert-title" class="mb-3 text-sm font-bold">Compras pendientes de recibir</h3>
 
-          <div class="wms-summary">
-            <ng-container [ngSwitch]="purchaseOrdersState()">
-              <div *ngSwitchCase="'loading'" class="wms-summary-message" role="status">
-                Cargando órdenes de compra…
-              </div>
-              <div *ngSwitchCase="'error'" class="wms-summary-message">
-                <p class="wms-error">No se pudieron cargar las órdenes de compra.</p>
-                <button class="wms-action wms-action-secondary wms-action-sm" (click)="loadPurchaseOrders()">
-                  Reintentar
-                </button>
-              </div>
-              <div *ngSwitchCase="'empty'" class="wms-summary-message">
-                No hay órdenes de compra para mostrar.
-              </div>
-              <ng-container *ngSwitchCase="'data'">
-                <div class="wms-summary-row">
-                  <span class="wms-summary-row-label">Compras pendientes</span>
-                  <span class="wms-summary-row-value">{{ pendingPurchaseOrders }}</span>
-                </div>
-                <div class="wms-summary-row">
-                  <span class="wms-summary-row-label">Compras recibidas</span>
-                  <span class="wms-summary-row-value">{{ receivedPurchaseOrders }}</span>
-                </div>
-              </ng-container>
-            </ng-container>
-
-            <ng-container [ngSwitch]="withdrawalOrdersState()">
-              <div *ngSwitchCase="'loading'" class="wms-summary-message" role="status">
-                Cargando órdenes de retiro…
-              </div>
-              <div *ngSwitchCase="'error'" class="wms-summary-message">
-                <p class="wms-error">No se pudieron cargar las órdenes de retiro.</p>
-                <button class="wms-action wms-action-secondary wms-action-sm" (click)="loadWithdrawalOrders()">
-                  Reintentar
-                </button>
-              </div>
-              <div *ngSwitchCase="'empty'" class="wms-summary-message">
-                No hay órdenes de retiro para mostrar.
-              </div>
-              <div *ngSwitchCase="'data'" class="wms-summary-row">
-                <span class="wms-summary-row-label">Órdenes de retiro</span>
-                <span class="wms-summary-row-value">{{ withdrawalOrders().length }}</span>
-              </div>
-            </ng-container>
-
-            <ng-container [ngSwitch]="movementsState()">
-              <div *ngSwitchCase="'loading'" class="wms-summary-message" role="status">
-                Cargando movimientos físicos…
-              </div>
-              <div *ngSwitchCase="'error'" class="wms-summary-message">
-                <p class="wms-error">No se pudieron cargar los movimientos físicos.</p>
-                <button class="wms-action wms-action-secondary wms-action-sm" (click)="loadMovements()">
-                  Reintentar
-                </button>
-              </div>
-              <div *ngSwitchCase="'empty'" class="wms-summary-message">
-                No hay movimientos físicos para mostrar.
-              </div>
-              <div *ngSwitchCase="'data'" class="wms-summary-row">
-                <span class="wms-summary-row-label">Movimientos físicos</span>
-                <span class="wms-summary-row-value">{{ movements().length }}</span>
-              </div>
-            </ng-container>
-
-            <ng-container [ngSwitch]="locationsState()">
-              <div *ngSwitchCase="'loading'" class="wms-summary-message" role="status">
-                Cargando ubicaciones…
-              </div>
-              <div *ngSwitchCase="'error'" class="wms-summary-message">
-                <p class="wms-error">No se pudieron cargar las ubicaciones.</p>
-                <button class="wms-action wms-action-secondary wms-action-sm" (click)="loadLocations()">
-                  Reintentar
-                </button>
-              </div>
-              <div *ngSwitchCase="'empty'" class="wms-summary-message">
-                No hay ubicaciones para mostrar.
-              </div>
-              <div *ngSwitchCase="'data'" class="wms-summary-row">
-                <span class="wms-summary-row-label">Ubicaciones</span>
-                <span class="wms-summary-row-value">{{ locations().length }}</span>
-              </div>
-            </ng-container>
-          </div>
-        </section>
-
-        <section class="wms-panel">
-          <div class="wms-panel-title">
-            <h2>Sin stock</h2>
-            <p>En los productos recibidos</p>
-          </div>
-
-          <ng-container [ngSwitch]="productsState()">
-            <p *ngSwitchCase="'loading'" class="p-5 text-sm text-gray-600" role="status">
-              Cargando productos…
+          <ng-container [ngSwitch]="purchaseOrdersState()">
+            <p *ngSwitchCase="'loading'" class="wms-muted-text text-sm" role="status">
+              Cargando órdenes de compra…
             </p>
-            <div *ngSwitchCase="'error'" class="space-y-3 p-4">
-              <p class="wms-error">No se pudieron cargar los productos.</p>
-              <button class="wms-action wms-action-secondary wms-action-sm" (click)="loadProducts()">
+            <div *ngSwitchCase="'error'" class="space-y-3">
+              <p class="wms-error" role="alert">No se pudieron cargar las órdenes de compra.</p>
+              <button
+                type="button"
+                class="wms-action wms-action-secondary wms-action-sm"
+                (click)="loadPurchaseOrders()"
+              >
                 Reintentar
               </button>
             </div>
-            <p *ngSwitchCase="'empty'" class="p-5 text-sm text-gray-600">
+            <p *ngSwitchCase="'empty'" class="wms-muted-text text-sm">
+              No hay órdenes de compra para mostrar.
+            </p>
+            <div *ngSwitchCase="'data'">
+              <a
+                *ngIf="pendingPurchaseOrders > 0; else noPendingPurchases"
+                routerLink="/ordenes-compra"
+                class="wms-launcher-row -mx-5 mt-1 w-[calc(100%+2.5rem)] px-5"
+              >
+                <span class="wms-launcher-row-main">
+                  <span class="wms-launcher-row-name">{{ pendingPurchaseOrders }} pendientes</span>
+                  <span class="wms-launcher-row-desc">Consultá las órdenes y registrá su recepción.</span>
+                </span>
+                <span class="wms-status wms-status-pending">{{ pendingPurchaseOrders }}</span>
+              </a>
+              <ng-template #noPendingPurchases>
+                <p class="wms-muted-text text-sm">No hay compras pendientes de recibir.</p>
+              </ng-template>
+            </div>
+          </ng-container>
+        </section>
+
+        <section class="wms-alert-block" aria-labelledby="stock-alert-title">
+          <div class="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+            <h3 id="stock-alert-title" class="text-sm font-bold">Productos sin stock</h3>
+            <a routerLink="/productos" class="wms-inline-link">Ver productos</a>
+          </div>
+
+          <ng-container [ngSwitch]="productsState()">
+            <p *ngSwitchCase="'loading'" class="wms-muted-text text-sm" role="status">
+              Cargando productos…
+            </p>
+            <div *ngSwitchCase="'error'" class="space-y-3">
+              <p class="wms-error" role="alert">No se pudieron cargar los productos.</p>
+              <button
+                type="button"
+                class="wms-action wms-action-secondary wms-action-sm"
+                (click)="loadProducts()"
+              >
+                Reintentar
+              </button>
+            </div>
+            <p *ngSwitchCase="'empty'" class="wms-muted-text text-sm">
               La consulta no devolvió productos.
             </p>
-            <ng-container *ngSwitchCase="'data'">
-              <p *ngIf="outOfStockProducts.length === 0" class="p-5 text-sm text-gray-600">
-                No se encontraron productos sin stock entre los productos recibidos.
+            <div *ngSwitchCase="'data'">
+              <p *ngIf="outOfStockProducts.length === 0" class="wms-muted-text text-sm">
+                No se encontraron productos sin stock en esta consulta.
               </p>
-
               <div class="wms-table-wrap border-0" *ngIf="outOfStockProducts.length > 0">
                 <table class="wms-table">
                   <thead>
@@ -215,10 +102,59 @@
                   </tbody>
                 </table>
               </div>
-            </ng-container>
+              <p *ngIf="outOfStockProducts.length > 0" class="wms-muted-text mt-2 text-xs">
+                Se muestran hasta seis coincidencias de los productos recibidos.
+              </p>
+            </div>
           </ng-container>
         </section>
-      </aside>
-    </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="admin-sections-title">
+      <h2 id="admin-sections-title" class="mb-3 text-base font-bold">Secciones</h2>
+      <div class="grid items-start gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <section
+          *ngFor="let group of mainGroups"
+          class="wms-panel wms-launcher"
+          [ngClass]="group.title === 'Administración' ? 'md:col-span-2 xl:col-span-1' : ''"
+        >
+          <div class="wms-panel-title">
+            <h3>{{ group.title }}</h3>
+            <p>{{ group.hint }}</p>
+          </div>
+
+          <a
+            *ngFor="let section of group.sections"
+            [routerLink]="section.route"
+            class="wms-launcher-row"
+          >
+            <span class="wms-launcher-row-main">
+              <span class="wms-launcher-row-name">{{ section.label }}</span>
+              <span class="wms-launcher-row-desc">{{ section.description }}</span>
+            </span>
+            <span class="flex shrink-0 items-center gap-3">
+              <span *ngIf="section.badge?.() as badge" class="wms-status wms-status-pending">
+                {{ badge }}
+              </span>
+              <svg
+                class="wms-launcher-cta"
+                viewBox="0 0 16 16"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+            </span>
+          </a>
+        </section>
+      </div>
+    </section>
   </main>
 </div>
