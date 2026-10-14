@@ -1,10 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { ProductInfo, ProductService } from '../../services/product.service';
-import { ProviderForm, ProviderService } from '../../services/provider.service';
 import { LocationInfo, LocationService } from '../../services/location.service';
 import {
   PhysicalMovementInfo,
@@ -12,8 +9,9 @@ import {
 } from '../../services/physical-movement.service';
 import { PurchaseOrderInfo, PurchaseOrderService } from '../../services/purchase-order.service';
 import { OrdenRetiroResponse, OrdenRetiroService } from '../../services/orden-retiro.service';
-import { AuthService, UserInfo } from '../../services/auth.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+
+type SourceState = 'loading' | 'error' | 'empty' | 'data';
 
 interface AdminSection {
   label: string;
@@ -89,7 +87,7 @@ export class AdminHomeComponent implements OnInit {
     hint: 'Cuentas y personal',
     sections: [
       {
-        label: 'Registrar Operario',
+        label: 'Registrar operario',
         description: 'Creá una cuenta de acceso para el personal del depósito.',
         route: '/registrar',
       },
@@ -106,77 +104,112 @@ export class AdminHomeComponent implements OnInit {
   readonly withdrawalOrders = signal<OrdenRetiroResponse[]>([]);
   readonly movements = signal<PhysicalMovementInfo[]>([]);
   readonly locations = signal<LocationInfo[]>([]);
-  readonly providers = signal<ProviderForm[]>([]);
-  readonly users = signal<UserInfo[]>([]);
 
-  readonly loadingSummary = signal(true);
-  readonly summaryError = signal('');
+  readonly productsState = signal<SourceState>('loading');
+  readonly purchaseOrdersState = signal<SourceState>('loading');
+  readonly withdrawalOrdersState = signal<SourceState>('loading');
+  readonly movementsState = signal<SourceState>('loading');
+  readonly locationsState = signal<SourceState>('loading');
 
   constructor(
     private productService: ProductService,
-    private providerService: ProviderService,
     private locationService: LocationService,
     private movementService: PhysicalMovementService,
     private purchaseOrderService: PurchaseOrderService,
     private withdrawalOrderService: OrdenRetiroService,
-    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    this.loadSummary();
-  }
-
-  get totalAvailableUnits(): number {
-    return this.products().reduce((acc, p) => acc + (p.cantidadDisponible ?? 0), 0);
-  }
-
-  get totalPendingUnits(): number {
-    return this.products().reduce((acc, p) => acc + (p.cantidadPendiente ?? 0), 0);
-  }
-
-  get outOfStockCount(): number {
-    return this.products().filter((p) => (p.cantidadDisponible ?? 0) === 0).length;
-  }
-
-  get pendingPurchaseOrders(): number {
-    return this.purchaseOrders().filter((o) => o.status === 'PENDIENTE').length;
-  }
-
-  get receivedPurchaseOrders(): number {
-    return this.purchaseOrders().filter((o) => o.status === 'RECIBIDA').length;
+    this.loadProducts();
+    this.loadPurchaseOrders();
+    this.loadWithdrawalOrders();
+    this.loadMovements();
+    this.loadLocations();
   }
 
   get outOfStockProducts(): ProductInfo[] {
-    return this.products().filter((p) => (p.cantidadDisponible ?? 0) === 0).slice(0, 6);
+    return this.products().filter((product) => product.cantidadDisponible === 0).slice(0, 6);
   }
 
-  private loadSummary(): void {
-    const safe = <T>(obs: Observable<T[]>): Observable<T[]> =>
-      obs.pipe(catchError(() => of([] as T[])));
+  get pendingPurchaseOrders(): number {
+    return this.purchaseOrders().filter((order) => order.status === 'PENDIENTE').length;
+  }
 
-    forkJoin({
-      products: safe(this.productService.getProducts()),
-      providers: safe(this.providerService.getProviders()),
-      locations: safe(this.locationService.list()),
-      movements: safe(this.movementService.list()),
-      purchaseOrders: safe(this.purchaseOrderService.list()),
-      withdrawalOrders: safe(this.withdrawalOrderService.list()),
-      users: safe(this.authService.getUsers()),
-    }).subscribe({
-      next: (result) => {
-        this.products.set(result.products);
-        this.providers.set(result.providers);
-        this.locations.set(result.locations);
-        this.movements.set(result.movements);
-        this.purchaseOrders.set(result.purchaseOrders);
-        this.withdrawalOrders.set(result.withdrawalOrders);
-        this.users.set(result.users);
-        this.loadingSummary.set(false);
+  get receivedPurchaseOrders(): number {
+    return this.purchaseOrders().filter((order) => order.status === 'RECIBIDA').length;
+  }
+
+  loadProducts(): void {
+    this.productsState.set('loading');
+    this.products.set([]);
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products.set(products);
+        this.productsState.set(products.length === 0 ? 'empty' : 'data');
       },
-      error: (err) => {
-        console.error('Error al cargar el resumen:', err);
-        this.loadingSummary.set(false);
-        this.summaryError.set('No se pudo cargar el resumen operativo');
+      error: (error) => {
+        console.error('Error al cargar productos del panel:', error);
+        this.productsState.set('error');
+      },
+    });
+  }
+
+  loadPurchaseOrders(): void {
+    this.purchaseOrdersState.set('loading');
+    this.purchaseOrders.set([]);
+    this.purchaseOrderService.list().subscribe({
+      next: (orders) => {
+        this.purchaseOrders.set(orders);
+        this.purchaseOrdersState.set(orders.length === 0 ? 'empty' : 'data');
+      },
+      error: (error) => {
+        console.error('Error al cargar órdenes de compra del panel:', error);
+        this.purchaseOrdersState.set('error');
+      },
+    });
+  }
+
+  loadWithdrawalOrders(): void {
+    this.withdrawalOrdersState.set('loading');
+    this.withdrawalOrders.set([]);
+    this.withdrawalOrderService.list().subscribe({
+      next: (orders) => {
+        this.withdrawalOrders.set(orders);
+        this.withdrawalOrdersState.set(orders.length === 0 ? 'empty' : 'data');
+      },
+      error: (error) => {
+        console.error('Error al cargar órdenes de retiro del panel:', error);
+        this.withdrawalOrdersState.set('error');
+      },
+    });
+  }
+
+  loadMovements(): void {
+    this.movementsState.set('loading');
+    this.movements.set([]);
+    this.movementService.list().subscribe({
+      next: (movements) => {
+        this.movements.set(movements);
+        this.movementsState.set(movements.length === 0 ? 'empty' : 'data');
+      },
+      error: (error) => {
+        console.error('Error al cargar movimientos físicos del panel:', error);
+        this.movementsState.set('error');
+      },
+    });
+  }
+
+  loadLocations(): void {
+    this.locationsState.set('loading');
+    this.locations.set([]);
+    this.locationService.list().subscribe({
+      next: (locations) => {
+        this.locations.set(locations);
+        this.locationsState.set(locations.length === 0 ? 'empty' : 'data');
+      },
+      error: (error) => {
+        console.error('Error al cargar ubicaciones del panel:', error);
+        this.locationsState.set('error');
       },
     });
   }

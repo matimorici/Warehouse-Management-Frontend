@@ -680,7 +680,7 @@ a.wms-task-card:hover {
 
 .wms-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: 0;
 }
 
@@ -690,12 +690,15 @@ a.wms-task-card:hover {
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid #e1e6e9;
-  border-left: 1px solid #e1e6e9;
+  border-left: 0;
   padding: 14px 18px;
 }
 
-.wms-summary-row:nth-child(odd) {
-  border-left: 0;
+.wms-summary-message {
+  border-bottom: 1px solid #e1e6e9;
+  padding: 14px 18px;
+  color: var(--wms-muted);
+  font-size: 0.82rem;
 }
 
 .wms-summary-row-label {
@@ -837,15 +840,6 @@ a.wms-task-card:hover {
   .wms-topbar-actions {
     width: 100%;
     flex-wrap: wrap;
-  }
-
-  .wms-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .wms-summary-row,
-  .wms-summary-row:nth-child(odd) {
-    border-left: 0;
   }
 
   .wms-filter-bar {
