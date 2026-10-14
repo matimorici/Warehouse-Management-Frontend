@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, timeout, catchError } from 'rxjs';
 import { API_BASE_URL } from '../shared/api-config';
 
 export type UserRole = 'ADMIN' | 'OPERARIO';
@@ -21,15 +21,33 @@ export class AuthService {
     cuil: string;
     contrasena: string;
   }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/usuarios`, data);
+    return this.http.post(`${this.apiUrl}/usuarios`, data).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('Error /api/usuarios:', err);
+        throw err;
+      }),
+    );
   }
 
   login(data: { cuil: string; contrasena: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, data);
+    return this.http.post(`${this.apiUrl}/auth/login`, data).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('Error /api/auth/login:', err);
+        throw err;
+      }),
+    );
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/auth/logout`, {});
+    return this.http.post<void>(`${this.apiUrl}/auth/logout`, {}).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('Error /api/auth/logout:', err);
+        throw err;
+      }),
+    );
   }
 
   saveSession(data: unknown): void {
@@ -182,13 +200,24 @@ export class AuthService {
   }
 
   getUsers(): Observable<UserInfo[]> {
-    return this.http
-      .get<unknown>(`${this.apiUrl}/usuarios`)
-      .pipe(map((response) => this.normalizeUsers(response)));
+    return this.http.get<unknown>(`${this.apiUrl}/usuarios`).pipe(
+      timeout(15000),
+      map((response) => this.normalizeUsers(response)),
+      catchError((err) => {
+        console.error('Error /api/usuarios:', err);
+        throw err;
+      }),
+    );
   }
 
   deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/usuarios/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/usuarios/${id}`).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.error('Error /api/usuarios/' + id + ':', err);
+        throw err;
+      }),
+    );
   }
 
   private normalizeUsers(response: unknown): UserInfo[] {

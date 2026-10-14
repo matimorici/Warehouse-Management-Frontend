@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
@@ -11,12 +11,12 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './users.html',
 })
 export class UsersComponent implements OnInit {
-  users: UserInfo[] = [];
+  readonly users = signal<UserInfo[]>([]);
   currentUserId: number | null = null;
-  loading = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
+  readonly loading = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
 
   constructor(private authService: AuthService) {}
 
@@ -26,22 +26,22 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.authService.getUsers().subscribe({
       next: (users) => {
-        this.users = users;
-        this.loading = false;
+        this.users.set(users);
+        this.loading.set(false);
 
         if (users.length === 0) {
-          this.listMessage = 'No hay usuarios registrados';
+          this.listMessage.set('No hay usuarios registrados');
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar usuarios:', err);
-        this.listMessage = err.error?.error || 'No se pudieron cargar los usuarios';
+        this.listMessage.set(err.error?.error || 'No se pudieron cargar los usuarios');
       },
     });
   }
@@ -58,7 +58,7 @@ export class UsersComponent implements OnInit {
 
   deleteUser(user: UserInfo): void {
     if (user.idUsuario === this.currentUserId) {
-      this.errorMessage = 'No podés eliminar tu propio usuario';
+      this.errorMessage.set('No podés eliminar tu propio usuario');
       return;
     }
 
@@ -68,12 +68,12 @@ export class UsersComponent implements OnInit {
 
     this.authService.deleteUser(user.idUsuario).subscribe({
       next: () => {
-        this.successMessage = 'Usuario eliminado correctamente';
+        this.successMessage.set('Usuario eliminado correctamente');
         this.loadUsers();
       },
       error: (err) => {
         console.error('Error al eliminar usuario:', err);
-        this.errorMessage = err.error?.error || 'No se pudo eliminar el usuario';
+        this.errorMessage.set(err.error?.error || 'No se pudo eliminar el usuario');
       },
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -21,19 +21,19 @@ interface LineaForm {
 export class OrdenRetiroFormComponent implements OnInit {
   isEditMode = false;
   orderId: number | null = null;
-  loadingOrder = false;
+  readonly loadingOrder = signal(false);
 
   form = {
     idUsuario: null as number | null,
     lineasRetiro: [] as LineaForm[],
   };
 
-  users: UserInfo[] = [];
-  products: ProductInfo[] = [];
-  loadingUsers = false;
-  loadingProducts = false;
-  errorMessage = '';
-  successMessage = '';
+  readonly users = signal<UserInfo[]>([]);
+  readonly products = signal<ProductInfo[]>([]);
+  readonly loadingUsers = signal(false);
+  readonly loadingProducts = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   constructor(
     private service: OrdenRetiroService,
@@ -56,7 +56,7 @@ export class OrdenRetiroFormComponent implements OnInit {
   }
 
   loadOrder(id: number): void {
-    this.loadingOrder = true;
+    this.loadingOrder.set(true);
     this.service.getById(id).subscribe({
       next: (order) => {
         this.form.idUsuario = order.idUsuario;
@@ -64,39 +64,39 @@ export class OrdenRetiroFormComponent implements OnInit {
           idProducto: line.idProducto,
           cantidad: line.cantidad,
         }));
-        this.loadingOrder = false;
+        this.loadingOrder.set(false);
       },
       error: (err) => {
-        this.loadingOrder = false;
+        this.loadingOrder.set(false);
         console.error('Error al cargar orden:', err);
-        this.errorMessage = err.error?.message || 'No se pudo cargar la orden de retiro';
+        this.errorMessage.set(err.error?.message || 'No se pudo cargar la orden de retiro');
       },
     });
   }
 
   loadUsers(): void {
-    this.loadingUsers = true;
+    this.loadingUsers.set(true);
     this.authService.getUsers().subscribe({
       next: (users) => {
-        this.users = users;
-        this.loadingUsers = false;
+        this.users.set(users);
+        this.loadingUsers.set(false);
       },
       error: (err) => {
-        this.loadingUsers = false;
+        this.loadingUsers.set(false);
         console.error('Error al cargar usuarios:', err);
       },
     });
   }
 
   loadProducts(): void {
-    this.loadingProducts = true;
+    this.loadingProducts.set(true);
     this.productService.getProducts().subscribe({
       next: (products) => {
-        this.products = products;
-        this.loadingProducts = false;
+        this.products.set(products);
+        this.loadingProducts.set(false);
       },
       error: (err) => {
-        this.loadingProducts = false;
+        this.loadingProducts.set(false);
         console.error('Error al cargar productos:', err);
       },
     });
@@ -104,7 +104,7 @@ export class OrdenRetiroFormComponent implements OnInit {
 
   getProduct(productId: number | null): ProductInfo | undefined {
     if (!productId) return undefined;
-    return this.products.find((p) => p.idProducto === productId);
+    return this.products().find((p) => p.idProducto === productId);
   }
 
   isStockWarning(line: LineaForm): boolean {
@@ -122,22 +122,22 @@ export class OrdenRetiroFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (!this.form.idUsuario) {
-      this.errorMessage = 'Tenés que seleccionar un usuario';
+      this.errorMessage.set('Tenés que seleccionar un usuario');
       return;
     }
 
     if (this.form.lineasRetiro.length === 0) {
-      this.errorMessage = 'Agregá al menos una línea de retiro';
+      this.errorMessage.set('Agregá al menos una línea de retiro');
       return;
     }
 
     const invalidLines = this.form.lineasRetiro.filter((l) => !l.idProducto || l.cantidad < 1);
     if (invalidLines.length > 0) {
-      this.errorMessage = 'Completá todos los productos y cantidades (mínimo 1)';
+      this.errorMessage.set('Completá todos los productos y cantidades (mínimo 1)');
       return;
     }
 
@@ -157,14 +157,14 @@ export class OrdenRetiroFormComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.successMessage = this.isEditMode
+        this.successMessage.set(this.isEditMode
           ? 'Orden de retiro actualizada correctamente'
-          : 'Orden de retiro creada correctamente';
+          : 'Orden de retiro creada correctamente');
         this.loadProducts();
         setTimeout(() => this.router.navigate(['/ordenes-retiro']), 1500);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'No se pudo guardar la orden de retiro';
+        this.errorMessage.set(err.error?.message || 'No se pudo guardar la orden de retiro');
       },
     });
   }

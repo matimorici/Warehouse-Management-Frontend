@@ -7,20 +7,20 @@
       <p>Organizá los sectores, estantes y posiciones físicas dentro del depósito.</p>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <section class="wms-panel">
         <div class="wms-panel-title">
           <h2>Ubicaciones registradas</h2>
-          <p>{{ locations.length }} en total</p>
+          <p>{{ locations().length }} en total</p>
         </div>
 
-        <p *ngIf="loading" class="p-5 text-sm text-gray-600">Cargando ubicaciones...</p>
-        <p *ngIf="!loading && listMessage" class="p-5 text-sm text-gray-600">{{ listMessage }}</p>
+        <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando ubicaciones...</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
 
-        <div class="wms-table-wrap border-0" *ngIf="!loading && locations.length > 0">
+        <div class="wms-table-wrap border-0" *ngIf="!loading() && locations().length > 0">
           <table class="wms-table">
             <thead>
               <tr>
@@ -30,7 +30,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let location of locations">
+              <tr *ngFor="let location of locations()">
                 <td class="wms-number">{{ location.id }}</td>
                 <td>{{ location.name }}</td>
                 <td>
@@ -79,8 +79,8 @@
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="locationForm.invalid || saving">
-              {{ saving ? 'Guardando...' : editingId !== null ? 'Actualizar ubicación' : 'Guardar ubicación' }}
+            <button type="submit" class="wms-action wms-action-success" [disabled]="locationForm.invalid || saving()">
+              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar ubicación' : 'Guardar ubicación' }}
             </button>
             <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
               Cancelar

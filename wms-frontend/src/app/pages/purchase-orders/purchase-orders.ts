@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PurchaseOrderInfo, PurchaseOrderService } from '../../services/purchase-order.service';
@@ -12,12 +12,12 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './purchase-orders.html',
 })
 export class PurchaseOrdersComponent implements OnInit {
-  orders: PurchaseOrderInfo[] = [];
-  providers: ProviderForm[] = [];
-  loading = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
+  readonly orders = signal<PurchaseOrderInfo[]>([]);
+  readonly providers = signal<ProviderForm[]>([]);
+  readonly loading = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
@@ -31,34 +31,34 @@ export class PurchaseOrdersComponent implements OnInit {
 
   loadProviders(): void {
     this.providerService.getProviders().subscribe({
-      next: (providers) => (this.providers = providers),
+      next: (providers) => this.providers.set(providers),
       error: (err) => console.error('Error al cargar proveedores:', err),
     });
   }
 
   loadOrders(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.purchaseOrderService.list().subscribe({
       next: (orders) => {
-        this.orders = orders;
-        this.loading = false;
+        this.orders.set(orders);
+        this.loading.set(false);
 
         if (orders.length === 0) {
-          this.listMessage = 'No hay órdenes de compra registradas';
+          this.listMessage.set('No hay órdenes de compra registradas');
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar órdenes de compra:', err);
-        this.listMessage = err.error?.error || 'No se pudieron cargar las órdenes de compra';
+        this.listMessage.set(err.error?.error || 'No se pudieron cargar las órdenes de compra');
       },
     });
   }
 
   providerName(id: number): string {
-    const provider = this.providers.find((p) => p.idProveedor === id);
+    const provider = this.providers().find((p) => p.idProveedor === id);
     return provider ? provider.razonSocial : `Proveedor #${id}`;
   }
 
@@ -103,12 +103,12 @@ export class PurchaseOrdersComponent implements OnInit {
 
     this.purchaseOrderService.delete(id).subscribe({
       next: () => {
-        this.successMessage = 'Orden de compra eliminada correctamente';
+        this.successMessage.set('Orden de compra eliminada correctamente');
         this.loadOrders();
       },
       error: (err) => {
         console.error('Error al eliminar orden de compra:', err);
-        this.errorMessage = err.error?.error || 'No se pudo eliminar la orden de compra';
+        this.errorMessage.set(err.error?.error || 'No se pudo eliminar la orden de compra');
       },
     });
   }

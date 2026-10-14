@@ -5,17 +5,17 @@
     <div class="wms-page-heading"><h1>Carga de productos</h1><p>Registrá artículos y mantené actualizado el inventario.</p></div>
     <div class="wms-panel wms-form-panel">
       <div
-        *ngIf="errorMessage"
+        *ngIf="errorMessage()"
         class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
       >
-        {{ errorMessage }}
+        {{ errorMessage() }}
       </div>
 
       <div
-        *ngIf="successMessage"
+        *ngIf="successMessage()"
         class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
       >
-        {{ successMessage }}
+        {{ successMessage() }}
       </div>
 
       <form #productForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
@@ -30,11 +30,11 @@
             name="idProveedor"
             #idProveedorModel="ngModel"
             required
-            [disabled]="loadingProviders || providers.length === 0"
+            [disabled]="loadingProviders() || providers().length === 0"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
           >
-            <option [ngValue]="null">{{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}</option>
-            <option *ngFor="let provider of providers" [ngValue]="provider.idProveedor">
+            <option [ngValue]="null">{{ loadingProviders() ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}</option>
+            <option *ngFor="let provider of providers()" [ngValue]="provider.idProveedor">
               {{ provider.razonSocial }} - {{ provider.cuit }}
             </option>
           </select>
@@ -45,8 +45,8 @@
           >
             Tenés que seleccionar un proveedor
           </p>
-          <p *ngIf="providerLoadMessage" class="mt-1 text-sm text-gray-600">
-            {{ providerLoadMessage }}
+          <p *ngIf="providerLoadMessage()" class="mt-1 text-sm text-gray-600">
+            {{ providerLoadMessage() }}
           </p>
         </div>
 
@@ -167,10 +167,10 @@
     <div class="wms-panel mt-6 wms-form-panel">
       <h2 class="mb-4 text-lg font-bold text-gray-900">Productos cargados</h2>
 
-      <p *ngIf="loadingProducts" class="text-sm text-gray-600">Cargando productos...</p>
-      <p *ngIf="productsLoadMessage && !loadingProducts" class="text-sm text-gray-600">{{ productsLoadMessage }}</p>
+      <p *ngIf="loadingProducts()" class="text-sm text-gray-600">Cargando productos...</p>
+      <p *ngIf="productsLoadMessage() && !loadingProducts()" class="text-sm text-gray-600">{{ productsLoadMessage() }}</p>
 
-      <div *ngIf="products.length > 0" class="overflow-x-auto">
+      <div *ngIf="products().length > 0" class="overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-gray-200 text-gray-600">
@@ -184,7 +184,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let product of products" class="border-b border-gray-100 hover:bg-gray-50">
+            <tr *ngFor="let product of products()" class="border-b border-gray-100 hover:bg-gray-50">
               <td class="px-3 py-2">{{ product.idProducto }}</td>
               <td class="px-3 py-2">{{ product.nombreProducto }}</td>
               <td class="px-3 py-2 font-mono text-xs">{{ product.codigoBarras }}</td>

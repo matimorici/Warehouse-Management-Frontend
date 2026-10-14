@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -101,16 +101,16 @@ export class AdminHomeComponent implements OnInit {
     ],
   };
 
-  products: ProductInfo[] = [];
-  purchaseOrders: PurchaseOrderInfo[] = [];
-  withdrawalOrders: OrdenRetiroResponse[] = [];
-  movements: PhysicalMovementInfo[] = [];
-  locations: LocationInfo[] = [];
-  providers: ProviderForm[] = [];
-  users: UserInfo[] = [];
+  readonly products = signal<ProductInfo[]>([]);
+  readonly purchaseOrders = signal<PurchaseOrderInfo[]>([]);
+  readonly withdrawalOrders = signal<OrdenRetiroResponse[]>([]);
+  readonly movements = signal<PhysicalMovementInfo[]>([]);
+  readonly locations = signal<LocationInfo[]>([]);
+  readonly providers = signal<ProviderForm[]>([]);
+  readonly users = signal<UserInfo[]>([]);
 
-  loadingSummary = true;
-  summaryError = '';
+  readonly loadingSummary = signal(true);
+  readonly summaryError = signal('');
 
   constructor(
     private productService: ProductService,
@@ -127,27 +127,27 @@ export class AdminHomeComponent implements OnInit {
   }
 
   get totalAvailableUnits(): number {
-    return this.products.reduce((acc, p) => acc + (p.cantidadDisponible ?? 0), 0);
+    return this.products().reduce((acc, p) => acc + (p.cantidadDisponible ?? 0), 0);
   }
 
   get totalPendingUnits(): number {
-    return this.products.reduce((acc, p) => acc + (p.cantidadPendiente ?? 0), 0);
+    return this.products().reduce((acc, p) => acc + (p.cantidadPendiente ?? 0), 0);
   }
 
   get outOfStockCount(): number {
-    return this.products.filter((p) => (p.cantidadDisponible ?? 0) === 0).length;
+    return this.products().filter((p) => (p.cantidadDisponible ?? 0) === 0).length;
   }
 
   get pendingPurchaseOrders(): number {
-    return this.purchaseOrders.filter((o) => o.status === 'PENDIENTE').length;
+    return this.purchaseOrders().filter((o) => o.status === 'PENDIENTE').length;
   }
 
   get receivedPurchaseOrders(): number {
-    return this.purchaseOrders.filter((o) => o.status === 'RECIBIDA').length;
+    return this.purchaseOrders().filter((o) => o.status === 'RECIBIDA').length;
   }
 
   get outOfStockProducts(): ProductInfo[] {
-    return this.products.filter((p) => (p.cantidadDisponible ?? 0) === 0).slice(0, 6);
+    return this.products().filter((p) => (p.cantidadDisponible ?? 0) === 0).slice(0, 6);
   }
 
   private loadSummary(): void {
@@ -164,19 +164,19 @@ export class AdminHomeComponent implements OnInit {
       users: safe(this.authService.getUsers()),
     }).subscribe({
       next: (result) => {
-        this.products = result.products;
-        this.providers = result.providers;
-        this.locations = result.locations;
-        this.movements = result.movements;
-        this.purchaseOrders = result.purchaseOrders;
-        this.withdrawalOrders = result.withdrawalOrders;
-        this.users = result.users;
-        this.loadingSummary = false;
+        this.products.set(result.products);
+        this.providers.set(result.providers);
+        this.locations.set(result.locations);
+        this.movements.set(result.movements);
+        this.purchaseOrders.set(result.purchaseOrders);
+        this.withdrawalOrders.set(result.withdrawalOrders);
+        this.users.set(result.users);
+        this.loadingSummary.set(false);
       },
       error: (err) => {
         console.error('Error al cargar el resumen:', err);
-        this.loadingSummary = false;
-        this.summaryError = 'No se pudo cargar el resumen operativo';
+        this.loadingSummary.set(false);
+        this.summaryError.set('No se pudo cargar el resumen operativo');
       },
     });
   }

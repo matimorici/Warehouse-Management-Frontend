@@ -11,17 +11,17 @@
       <p>Seleccioná el usuario y cargá las líneas de productos a retirar.</p>
     </div>
 
-    <div *ngIf="errorMessage" class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ errorMessage }}
+    <div *ngIf="errorMessage()" class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ errorMessage() }}
     </div>
 
-    <div *ngIf="successMessage" class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
-      {{ successMessage }}
+    <div *ngIf="successMessage()" class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
+      {{ successMessage() }}
     </div>
 
-    <div *ngIf="loadingOrder" class="py-8 text-center text-gray-500">Cargando orden...</div>
+    <div *ngIf="loadingOrder()" class="py-8 text-center text-gray-500">Cargando orden...</div>
 
-    <div *ngIf="!loadingOrder" class="wms-panel wms-form-panel">
+    <div *ngIf="!loadingOrder()" class="wms-panel wms-form-panel">
       <form #orderForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-6">
           <label class="mb-1 block text-sm font-medium text-gray-700">Usuario</label>
@@ -30,13 +30,13 @@
             name="idUsuario"
             #idUsuarioModel="ngModel"
             required
-            [disabled]="loadingUsers || users.length === 0"
+            [disabled]="loadingUsers() || users().length === 0"
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
           >
             <option [ngValue]="null">
-              {{ loadingUsers ? 'Cargando usuarios...' : 'Seleccioná un usuario' }}
+              {{ loadingUsers() ? 'Cargando usuarios...' : 'Seleccioná un usuario' }}
             </option>
-            <option *ngFor="let user of users" [ngValue]="user.idUsuario">
+            <option *ngFor="let user of users()" [ngValue]="user.idUsuario">
               {{ user.nombre }} {{ user.apellido }} - {{ user.cuil }}
             </option>
           </select>
@@ -69,13 +69,13 @@
                   [(ngModel)]="line.idProducto"
                   [name]="'idProducto_' + i"
                   required
-                  [disabled]="loadingProducts || products.length === 0"
+                  [disabled]="loadingProducts() || products().length === 0"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
                 >
                   <option [ngValue]="null">
-                    {{ loadingProducts ? 'Cargando productos...' : 'Seleccioná un producto' }}
+                    {{ loadingProducts() ? 'Cargando productos...' : 'Seleccioná un producto' }}
                   </option>
-                  <option *ngFor="let p of products" [ngValue]="p.idProducto">
+                  <option *ngFor="let p of products()" [ngValue]="p.idProducto">
                     {{ p.nombreProducto }} - {{ p.codigoBarras }}
                     <span class="text-gray-400">(disp: {{ p.cantidadDisponible }})</span>
                   </option>

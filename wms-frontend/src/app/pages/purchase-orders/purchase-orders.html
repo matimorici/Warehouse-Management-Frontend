@@ -10,13 +10,13 @@
       <a routerLink="/ordenes-compra/nuevo" class="wms-action wms-action-success">Nueva orden de compra</a>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
-    <p *ngIf="loading" class="wms-empty">Cargando órdenes de compra...</p>
-    <p *ngIf="!loading && listMessage" class="wms-empty">{{ listMessage }}</p>
+    <p *ngIf="loading()" class="wms-empty">Cargando órdenes de compra...</p>
+    <p *ngIf="!loading() && listMessage()" class="wms-empty">{{ listMessage() }}</p>
 
-    <div class="wms-table-wrap" *ngIf="!loading && orders.length > 0">
+    <div class="wms-table-wrap" *ngIf="!loading() && orders().length > 0">
       <table class="wms-table">
         <thead>
           <tr>
@@ -29,7 +29,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let order of orders">
+          <tr *ngFor="let order of orders()">
             <td class="wms-number">{{ order.idPurchaseOrder }}</td>
             <td>{{ order.dateTime }}</td>
             <td>{{ providerName(order.idSupplier) }}</td>

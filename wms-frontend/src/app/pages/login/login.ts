@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -17,7 +17,7 @@ export class LoginComponent {
     contrasena: '',
   };
 
-  errorMessage = '';
+  readonly errorMessage = signal('');
 
   constructor(
     private authService: AuthService,
@@ -25,7 +25,7 @@ export class LoginComponent {
   ) {}
 
   onSubmit() {
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
     this.authService.login(this.form).subscribe({
       next: (res) => {
@@ -33,7 +33,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Credenciales inválidas';
+        this.errorMessage.set(err.error?.message || 'Credenciales inválidas');
       },
     });
   }

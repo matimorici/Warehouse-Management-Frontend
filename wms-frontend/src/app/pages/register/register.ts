@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,8 +22,8 @@ export class RegisterComponent {
     contrasena: '',
   };
 
-  errorMessage = '';
-  successMessage = '';
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   constructor(
     private authService: AuthService,
@@ -31,12 +31,12 @@ export class RegisterComponent {
   ) {}
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     this.authService.register(this.form).subscribe({
       next: () => {
-        this.successMessage = 'Operario creado correctamente. Redirigiendo al listado...';
+        this.successMessage.set('Operario creado correctamente. Redirigiendo al listado...');
         this.form = {
           nombre: '',
           apellido: '',
@@ -46,7 +46,7 @@ export class RegisterComponent {
         setTimeout(() => this.router.navigate(['/usuarios']), 1200);
       },
       error: (err) => {
-        this.errorMessage = err.error?.error || 'No se pudo crear el operario';
+        this.errorMessage.set(err.error?.error || 'No se pudo crear el operario');
       },
     });
   }

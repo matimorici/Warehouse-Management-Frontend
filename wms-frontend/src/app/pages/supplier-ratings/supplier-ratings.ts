@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -16,19 +16,19 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './supplier-ratings.html',
 })
 export class SupplierRatingsComponent implements OnInit {
-  ratings: SupplierRatingInfo[] = [];
-  providers: ProviderForm[] = [];
+  readonly ratings = signal<SupplierRatingInfo[]>([]);
+  readonly providers = signal<ProviderForm[]>([]);
   selectedSupplierFilter: number | null = null;
 
   form: SupplierRatingForm = this.emptyForm();
   editingId: number | null = null;
 
-  loading = false;
-  loadingProviders = false;
-  saving = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
+  readonly loading = signal(false);
+  readonly loadingProviders = signal(false);
+  readonly saving = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
 
   constructor(
     private ratingService: SupplierRatingService,
@@ -50,36 +50,36 @@ export class SupplierRatingsComponent implements OnInit {
   }
 
   loadProviders(): void {
-    this.loadingProviders = true;
+    this.loadingProviders.set(true);
     this.providerService.getProviders().subscribe({
       next: (providers) => {
-        this.providers = providers;
-        this.loadingProviders = false;
+        this.providers.set(providers);
+        this.loadingProviders.set(false);
       },
       error: (err) => {
-        this.loadingProviders = false;
+        this.loadingProviders.set(false);
         console.error('Error al cargar proveedores:', err);
       },
     });
   }
 
   loadRatings(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.ratingService.list(this.selectedSupplierFilter).subscribe({
       next: (ratings) => {
-        this.ratings = ratings;
-        this.loading = false;
+        this.ratings.set(ratings);
+        this.loading.set(false);
 
         if (ratings.length === 0) {
-          this.listMessage = 'No hay valoraciones registradas';
+          this.listMessage.set('No hay valoraciones registradas');
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar valoraciones:', err);
-        this.listMessage = err.error?.error || 'No se pudieron cargar las valoraciones';
+        this.listMessage.set(err.error?.error || 'No se pudieron cargar las valoraciones');
       },
     });
   }
@@ -89,7 +89,7 @@ export class SupplierRatingsComponent implements OnInit {
   }
 
   providerName(id: number): string {
-    const provider = this.providers.find((p) => p.idProveedor === id);
+    const provider = this.providers().find((p) => p.idProveedor === id);
     return provider ? provider.razonSocial : `Proveedor #${id}`;
   }
 
@@ -101,8 +101,8 @@ export class SupplierRatingsComponent implements OnInit {
       deliveryMethod: rating.deliveryMethod,
       priceQualityRatio: rating.priceQualityRatio,
     };
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   cancelEdit(): void {
@@ -117,7 +117,7 @@ export class SupplierRatingsComponent implements OnInit {
 
     this.ratingService.delete(id).subscribe({
       next: () => {
-        this.successMessage = 'Valoración eliminada correctamente';
+        this.successMessage.set('Valoración eliminada correctamente');
         if (this.editingId === id) {
           this.cancelEdit();
         }
@@ -125,21 +125,21 @@ export class SupplierRatingsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al eliminar valoración:', err);
-        this.errorMessage = err.error?.error || 'No se pudo eliminar la valoración';
+        this.errorMessage.set(err.error?.error || 'No se pudo eliminar la valoración');
       },
     });
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (!this.form.idSupplier) {
-      this.errorMessage = 'Tenés que seleccionar un proveedor';
+      this.errorMessage.set('Tenés que seleccionar un proveedor');
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
 
     const request =
       this.editingId !== null
@@ -148,17 +148,17 @@ export class SupplierRatingsComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.saving = false;
-        this.successMessage = this.editingId !== null
+        this.saving.set(false);
+        this.successMessage.set(this.editingId !== null
           ? 'Valoración actualizada correctamente'
-          : 'Valoración registrada correctamente';
+          : 'Valoración registrada correctamente');
         this.cancelEdit();
         this.loadRatings();
       },
       error: (err) => {
-        this.saving = false;
+        this.saving.set(false);
         console.error('Error al guardar valoración:', err);
-        this.errorMessage = err.error?.error || 'No se pudo guardar la valoración';
+        this.errorMessage.set(err.error?.error || 'No se pudo guardar la valoración');
       },
     });
   }

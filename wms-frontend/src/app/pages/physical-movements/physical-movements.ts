@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -18,10 +18,10 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './physical-movements.html',
 })
 export class PhysicalMovementsComponent implements OnInit {
-  movements: PhysicalMovementInfo[] = [];
-  products: ProductInfo[] = [];
-  locations: LocationInfo[] = [];
-  users: UserInfo[] = [];
+  readonly movements = signal<PhysicalMovementInfo[]>([]);
+  readonly products = signal<ProductInfo[]>([]);
+  readonly locations = signal<LocationInfo[]>([]);
+  readonly users = signal<UserInfo[]>([]);
 
   filters = {
     idProduct: null as number | null,
@@ -37,12 +37,12 @@ export class PhysicalMovementsComponent implements OnInit {
     idUser: null,
   };
 
-  loading = false;
-  saving = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
-  userLoadMessage = '';
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
+  readonly userLoadMessage = signal('');
 
   constructor(
     private movementService: PhysicalMovementService,
@@ -73,8 +73,8 @@ export class PhysicalMovementsComponent implements OnInit {
   }
 
   loadMovements(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.movementService
       .list({
@@ -85,17 +85,17 @@ export class PhysicalMovementsComponent implements OnInit {
       })
       .subscribe({
         next: (movements) => {
-          this.movements = movements;
-          this.loading = false;
+          this.movements.set(movements);
+          this.loading.set(false);
 
           if (movements.length === 0) {
-            this.listMessage = 'No hay movimientos para los filtros seleccionados';
+            this.listMessage.set('No hay movimientos para los filtros seleccionados');
           }
         },
         error: (err) => {
-          this.loading = false;
+          this.loading.set(false);
           console.error('Error al cargar movimientos:', err);
-          this.listMessage = err.error?.error || 'No se pudieron cargar los movimientos';
+          this.listMessage.set(err.error?.error || 'No se pudieron cargar los movimientos');
         },
       });
   }
@@ -119,32 +119,32 @@ export class PhysicalMovementsComponent implements OnInit {
 
   loadProducts(): void {
     this.productService.getProducts().subscribe({
-      next: (products) => (this.products = products),
+      next: (products) => this.products.set(products),
       error: (err) => console.error('Error al cargar productos:', err),
     });
   }
 
   loadLocations(): void {
     this.locationService.list().subscribe({
-      next: (locations) => (this.locations = locations),
+      next: (locations) => this.locations.set(locations),
       error: (err) => console.error('Error al cargar ubicaciones:', err),
     });
   }
 
   loadUsers(): void {
-    this.userLoadMessage = '';
+    this.userLoadMessage.set('');
     this.authService.getUsers().subscribe({
-      next: (users) => (this.users = users),
+      next: (users) => this.users.set(users),
       error: (err) => {
         console.error('Error al cargar usuarios:', err);
-        this.users = [];
-        this.userLoadMessage = 'No se pudo cargar la lista de usuarios; se usará el usuario actual.';
+        this.users.set([]);
+        this.userLoadMessage.set('No se pudo cargar la lista de usuarios; se usará el usuario actual.');
       },
     });
   }
 
   productName(id: number): string {
-    const product = this.products.find((p) => p.idProducto === id);
+    const product = this.products().find((p) => p.idProducto === id);
     return product ? product.nombreProducto : `Producto #${id}`;
   }
 
@@ -152,37 +152,37 @@ export class PhysicalMovementsComponent implements OnInit {
     if (!id) {
       return '—';
     }
-    const location = this.locations.find((l) => l.id === id);
+    const location = this.locations().find((l) => l.id === id);
     return location ? location.name : `Ubicación #${id}`;
   }
 
   userName(id: number): string {
-    const user = this.users.find((u) => u.idUsuario === id);
+    const user = this.users().find((u) => u.idUsuario === id);
     return user ? `${user.nombre} ${user.apellido}` : `Usuario #${id}`;
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (!this.form.idProduct || !this.form.idLocationTo || !this.form.idUser) {
-      this.errorMessage = 'Completá producto, ubicación de destino y usuario';
+      this.errorMessage.set('Completá producto, ubicación de destino y usuario');
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
 
     this.movementService.create(this.form).subscribe({
       next: () => {
-        this.saving = false;
-        this.successMessage = 'Movimiento registrado correctamente';
+        this.saving.set(false);
+        this.successMessage.set('Movimiento registrado correctamente');
         this.form = this.emptyForm();
         this.loadMovements();
       },
       error: (err) => {
-        this.saving = false;
+        this.saving.set(false);
         console.error('Error al registrar movimiento:', err);
-        this.errorMessage = err.error?.error || 'No se pudo registrar el movimiento';
+        this.errorMessage.set(err.error?.error || 'No se pudo registrar el movimiento');
       },
     });
   }

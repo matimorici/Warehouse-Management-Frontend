@@ -7,17 +7,17 @@
       <a routerLink="/ordenes-retiro/nuevo" class="wms-action wms-action-success">Nueva orden de retiro</a>
     </div>
     <div
-      *ngIf="errorMessage"
+      *ngIf="errorMessage()"
       class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
     >
-      {{ errorMessage }}
+      {{ errorMessage() }}
     </div>
 
     <div
-      *ngIf="successMessage"
+      *ngIf="successMessage()"
       class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
     >
-      {{ successMessage }}
+      {{ successMessage() }}
     </div>
 
     <div class="wms-table-wrap">
@@ -32,15 +32,15 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr *ngIf="loading">
+          <tr *ngIf="loading()">
             <td colspan="5" class="py-8 text-center text-gray-500">Cargando...</td>
           </tr>
-          <tr *ngIf="!loading && orders.length === 0">
+          <tr *ngIf="!loading() && orders().length === 0">
             <td colspan="5" class="py-8 text-center text-gray-500">
               No hay órdenes de retiro registradas
             </td>
           </tr>
-          <tr *ngFor="let order of orders">
+          <tr *ngFor="let order of orders()">
             <td class="wms-number">{{ order.idOrdenRetiro }}</td>
             <td>{{ order.idUsuario }}</td>
             <td>{{ order.fechaHora }}</td>

@@ -7,20 +7,20 @@
       <p>Registrá, consultá y actualizá los datos de contacto y facturación de los proveedores.</p>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
       <section class="wms-panel">
         <div class="wms-panel-title">
           <h2>Proveedores cargados</h2>
-          <p>{{ providers.length }} en total</p>
+          <p>{{ providers().length }} en total</p>
         </div>
 
-        <p *ngIf="loading" class="p-5 text-sm text-gray-600">Cargando proveedores...</p>
-        <p *ngIf="!loading && listMessage" class="p-5 text-sm text-gray-600">{{ listMessage }}</p>
+        <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando proveedores...</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
 
-        <div class="wms-table-wrap border-0" *ngIf="!loading && providers.length > 0">
+        <div class="wms-table-wrap border-0" *ngIf="!loading() && providers().length > 0">
           <table class="wms-table">
             <thead>
               <tr>
@@ -32,7 +32,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let provider of providers">
+              <tr *ngFor="let provider of providers()">
                 <td class="wms-number">{{ provider.cuit }}</td>
                 <td>{{ provider.razonSocial }}</td>
                 <td>
@@ -129,8 +129,8 @@
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="providerForm.invalid || saving">
-              {{ saving ? 'Guardando...' : editingId !== null ? 'Actualizar proveedor' : 'Guardar proveedor' }}
+            <button type="submit" class="wms-action wms-action-success" [disabled]="providerForm.invalid || saving()">
+              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar proveedor' : 'Guardar proveedor' }}
             </button>
             <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
               Cancelar

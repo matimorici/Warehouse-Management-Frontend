@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocationInfo, LocationService } from '../../services/location.service';
@@ -11,15 +11,15 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './locations.html',
 })
 export class LocationsComponent implements OnInit {
-  locations: LocationInfo[] = [];
+  readonly locations = signal<LocationInfo[]>([]);
   form = { name: '' };
   editingId: number | null = null;
 
-  loading = false;
-  saving = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
 
   constructor(private locationService: LocationService) {}
 
@@ -28,22 +28,22 @@ export class LocationsComponent implements OnInit {
   }
 
   loadLocations(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.locationService.list().subscribe({
       next: (locations) => {
-        this.locations = locations;
-        this.loading = false;
+        this.locations.set(locations);
+        this.loading.set(false);
 
         if (locations.length === 0) {
-          this.listMessage = 'No hay ubicaciones cargadas';
+          this.listMessage.set('No hay ubicaciones cargadas');
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar ubicaciones:', err);
-        this.listMessage = err.error?.error || 'No se pudieron cargar las ubicaciones';
+        this.listMessage.set(err.error?.error || 'No se pudieron cargar las ubicaciones');
       },
     });
   }
@@ -51,8 +51,8 @@ export class LocationsComponent implements OnInit {
   editLocation(location: LocationInfo): void {
     this.editingId = location.id;
     this.form = { name: location.name };
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   cancelEdit(): void {
@@ -67,7 +67,7 @@ export class LocationsComponent implements OnInit {
 
     this.locationService.delete(id).subscribe({
       next: () => {
-        this.successMessage = 'Ubicación eliminada correctamente';
+        this.successMessage.set('Ubicación eliminada correctamente');
         if (this.editingId === id) {
           this.cancelEdit();
         }
@@ -75,15 +75,15 @@ export class LocationsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al eliminar ubicación:', err);
-        this.errorMessage = err.error?.error || 'No se pudo eliminar la ubicación';
+        this.errorMessage.set(err.error?.error || 'No se pudo eliminar la ubicación');
       },
     });
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.saving = true;
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.saving.set(true);
 
     const request =
       this.editingId !== null
@@ -92,17 +92,17 @@ export class LocationsComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.saving = false;
-        this.successMessage = this.editingId !== null
+        this.saving.set(false);
+        this.successMessage.set(this.editingId !== null
           ? 'Ubicación actualizada correctamente'
-          : 'Ubicación creada correctamente';
+          : 'Ubicación creada correctamente');
         this.cancelEdit();
         this.loadLocations();
       },
       error: (err) => {
-        this.saving = false;
+        this.saving.set(false);
         console.error('Error al guardar ubicación:', err);
-        this.errorMessage = err.error?.error || 'No se pudo guardar la ubicación';
+        this.errorMessage.set(err.error?.error || 'No se pudo guardar la ubicación');
       },
     });
   }

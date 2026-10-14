@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -24,14 +24,14 @@ export class ProductsComponent implements OnInit {
   };
 
   editingProduct: ProductInfo | null = null;
-  products: ProductInfo[] = [];
-  providers: ProviderForm[] = [];
-  loadingProviders = false;
-  loadingProducts = false;
-  errorMessage = '';
-  successMessage = '';
-  providerLoadMessage = '';
-  productsLoadMessage = '';
+  readonly products = signal<ProductInfo[]>([]);
+  readonly providers = signal<ProviderForm[]>([]);
+  readonly loadingProviders = signal(false);
+  readonly loadingProducts = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly providerLoadMessage = signal('');
+  readonly productsLoadMessage = signal('');
 
   constructor(
     private productService: ProductService,
@@ -44,43 +44,43 @@ export class ProductsComponent implements OnInit {
   }
 
   loadProviders(): void {
-    this.loadingProviders = true;
-    this.providerLoadMessage = '';
+    this.loadingProviders.set(true);
+    this.providerLoadMessage.set('');
 
     this.providerService.getProviders().subscribe({
       next: (providers) => {
-        this.providers = providers;
-        this.loadingProviders = false;
+        this.providers.set(providers);
+        this.loadingProviders.set(false);
 
         if (providers.length === 0) {
-          this.providerLoadMessage = 'No hay proveedores cargados';
+          this.providerLoadMessage.set('No hay proveedores cargados');
         }
       },
       error: (err) => {
-        this.loadingProviders = false;
+        this.loadingProviders.set(false);
         console.error('Error al cargar proveedores:', err);
-        this.providerLoadMessage = err.error?.message || 'No se pudieron cargar los proveedores';
+        this.providerLoadMessage.set(err.error?.message || 'No se pudieron cargar los proveedores');
       },
     });
   }
 
   loadProducts(): void {
-    this.loadingProducts = true;
-    this.productsLoadMessage = '';
+    this.loadingProducts.set(true);
+    this.productsLoadMessage.set('');
 
     this.productService.getProducts().subscribe({
       next: (products) => {
-        this.products = products;
-        this.loadingProducts = false;
+        this.products.set(products);
+        this.loadingProducts.set(false);
 
         if (products.length === 0) {
-          this.productsLoadMessage = 'No hay productos cargados';
+          this.productsLoadMessage.set('No hay productos cargados');
         }
       },
       error: (err) => {
-        this.loadingProducts = false;
+        this.loadingProducts.set(false);
         console.error('Error al cargar productos:', err);
-        this.productsLoadMessage = err.error?.message || 'No se pudieron cargar los productos';
+        this.productsLoadMessage.set(err.error?.message || 'No se pudieron cargar los productos');
       },
     });
   }
@@ -116,29 +116,29 @@ export class ProductsComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (this.editingProduct) {
       this.productService.updateProduct(this.editingProduct.idProducto, this.form).subscribe({
         next: () => {
-          this.successMessage = 'Producto actualizado correctamente';
+          this.successMessage.set('Producto actualizado correctamente');
           this.cancelEdit();
           this.loadProducts();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'No se pudo actualizar el producto';
+          this.errorMessage.set(err.error?.message || 'No se pudo actualizar el producto');
         },
       });
     } else {
       this.productService.createProduct(this.form).subscribe({
         next: () => {
-          this.successMessage = 'Producto cargado correctamente';
+          this.successMessage.set('Producto cargado correctamente');
           this.resetForm();
           this.loadProducts();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'No se pudo cargar el producto';
+          this.errorMessage.set(err.error?.message || 'No se pudo cargar el producto');
         },
       });
     }

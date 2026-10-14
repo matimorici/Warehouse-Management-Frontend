@@ -3,23 +3,23 @@
 
   <main class="wms-content pb-10">
     <div class="wms-page-heading">
-      <h1>{{ product ? product.nombreProducto : 'Detalle de producto' }}</h1>
+      <h1>{{ product()?.nombreProducto ?? 'Detalle de producto' }}</h1>
       <p>Consultá y ajustá el stock del artículo, y descargá su código de barras.</p>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
-    <div *ngIf="loading" class="wms-empty">Cargando producto...</div>
+    <div *ngIf="loading()" class="wms-empty">Cargando producto...</div>
 
-    <div *ngIf="!loading && product" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div *ngIf="!loading() && product()" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <section class="wms-panel wms-form-panel">
         <h2>Datos del artículo</h2>
 
         <dl class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
           <div>
             <dt class="wms-section-label">Nombre</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ product.nombreProducto }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">{{ product()!.nombreProducto }}</dd>
           </div>
           <div>
             <dt class="wms-section-label">Proveedor</dt>
@@ -27,15 +27,15 @@
           </div>
           <div>
             <dt class="wms-section-label">Código de barras</dt>
-            <dd class="mt-1 font-mono text-sm text-gray-900">{{ product.codigoBarras || '—' }}</dd>
+            <dd class="mt-1 font-mono text-sm text-gray-900">{{ product()!.codigoBarras || '—' }}</dd>
           </div>
           <div>
             <dt class="wms-section-label">Origen</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ product.origenCodigoBarras }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">{{ product()!.origenCodigoBarras }}</dd>
           </div>
           <div class="sm:col-span-2">
             <dt class="wms-section-label">Descripción</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ product.descripcionProducto }}</dd>
+            <dd class="mt-1 text-sm text-gray-900">{{ product()!.descripcionProducto }}</dd>
           </div>
         </dl>
       </section>
@@ -69,12 +69,12 @@
               />
             </div>
 
-            <p class="wms-field-hint" *ngIf="stock">
-              Última actualización: {{ stock.fechaHora }}
+            <p class="wms-field-hint" *ngIf="stock() as currentStock">
+              Última actualización: {{ currentStock.fechaHora }}
             </p>
 
-            <button type="submit" class="wms-action wms-action-success" [disabled]="stockFormRef.invalid || saving">
-              {{ saving ? 'Guardando...' : 'Guardar stock' }}
+            <button type="submit" class="wms-action wms-action-success" [disabled]="stockFormRef.invalid || saving()">
+              {{ saving() ? 'Guardando...' : 'Guardar stock' }}
             </button>
           </form>
         </section>
@@ -85,7 +85,7 @@
             <img
               *ngIf="barcodeUrl"
               [src]="barcodeUrl"
-              [alt]="'Código de barras de ' + product.nombreProducto"
+              [alt]="'Código de barras de ' + product()!.nombreProducto"
               class="max-w-full"
             />
           </div>

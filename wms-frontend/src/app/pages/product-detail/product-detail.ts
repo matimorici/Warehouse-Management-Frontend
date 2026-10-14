@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -14,19 +14,19 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
 })
 export class ProductDetailComponent implements OnInit {
   productId: number | null = null;
-  product: ProductInfo | null = null;
-  stock: StockInfo | null = null;
-  providers: ProviderForm[] = [];
+  readonly product = signal<ProductInfo | null>(null);
+  readonly stock = signal<StockInfo | null>(null);
+  readonly providers = signal<ProviderForm[]>([]);
 
   stockForm = {
     cantidadDisponible: 0,
     cantidadPendiente: 0,
   };
 
-  loading = false;
-  saving = false;
-  errorMessage = '';
-  successMessage = '';
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   constructor(
     private productService: ProductService,
@@ -38,7 +38,7 @@ export class ProductDetailComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!id || Number.isNaN(id)) {
-      this.errorMessage = 'Producto inválido';
+      this.errorMessage.set('Producto inválido');
       return;
     }
 
@@ -53,25 +53,26 @@ export class ProductDetailComponent implements OnInit {
   }
 
   get providerName(): string {
-    if (!this.product) {
+    const product = this.product();
+    if (!product) {
       return '—';
     }
 
-    const provider = this.providers.find((p) => p.idProveedor === this.product?.idProveedor);
-    return provider ? provider.razonSocial : `Proveedor #${this.product.idProveedor}`;
+    const provider = this.providers().find((p) => p.idProveedor === product.idProveedor);
+    return provider ? provider.razonSocial : `Proveedor #${product.idProveedor}`;
   }
 
   loadProduct(id: number): void {
-    this.loading = true;
+    this.loading.set(true);
     this.productService.getById(id).subscribe({
       next: (product) => {
-        this.product = product;
-        this.loading = false;
+        this.product.set(product);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar producto:', err);
-        this.errorMessage = err.error?.error || 'No se pudo cargar el producto';
+        this.errorMessage.set(err.error?.error || 'No se pudo cargar el producto');
       },
     });
   }
@@ -79,7 +80,7 @@ export class ProductDetailComponent implements OnInit {
   loadStock(id: number): void {
     this.productService.getStock(id).subscribe({
       next: (stock) => {
-        this.stock = stock;
+        this.stock.set(stock);
         this.stockForm = {
           cantidadDisponible: stock.cantidadDisponible,
           cantidadPendiente: stock.cantidadPendiente,
@@ -87,14 +88,14 @@ export class ProductDetailComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar stock:', err);
-        this.errorMessage = err.error?.error || 'No se pudo cargar el stock';
+        this.errorMessage.set(err.error?.error || 'No se pudo cargar el stock');
       },
     });
   }
 
   loadProviders(): void {
     this.providerService.getProviders().subscribe({
-      next: (providers) => (this.providers = providers),
+      next: (providers) => this.providers.set(providers),
       error: (err) => console.error('Error al cargar proveedores:', err),
     });
   }
@@ -104,23 +105,23 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.saving = true;
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.saving.set(true);
 
     this.productService.updateStock(this.productId, this.stockForm).subscribe({
       next: (stock) => {
-        this.stock = stock;
+        this.stock.set(stock);
         this.stockForm = {
           cantidadDisponible: stock.cantidadDisponible,
           cantidadPendiente: stock.cantidadPendiente,
         };
-        this.saving = false;
-        this.successMessage = 'Stock actualizado correctamente';
+        this.saving.set(false);
+        this.successMessage.set('Stock actualizado correctamente');
       },
       error: (err) => {
-        this.saving = false;
-        this.errorMessage = err.error?.error || 'No se pudo actualizar el stock';
+        this.saving.set(false);
+        this.errorMessage.set(err.error?.error || 'No se pudo actualizar el stock');
       },
     });
   }

@@ -18,8 +18,8 @@
       <h2>Iniciar sesión</h2>
       <p class="wms-form-intro">Usá tus credenciales de operador o administrador.</p>
 
-      <div *ngIf="errorMessage" class="wms-error mb-4">
-        {{ errorMessage }}
+      <div *ngIf="errorMessage()" class="wms-error mb-4">
+        {{ errorMessage() }}
       </div>
 
       <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>

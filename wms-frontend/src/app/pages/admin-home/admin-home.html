@@ -74,15 +74,15 @@
         <section class="wms-panel">
           <div class="wms-panel-title">
             <h2>Resumen operativo</h2>
-            <p *ngIf="loadingSummary">Actualizando...</p>
+            <p *ngIf="loadingSummary()">Actualizando...</p>
           </div>
 
-          <p *ngIf="summaryError" class="wms-error m-4">{{ summaryError }}</p>
+          <p *ngIf="summaryError()" class="wms-error m-4">{{ summaryError() }}</p>
 
-          <div class="wms-summary" *ngIf="!summaryError">
+          <div class="wms-summary" *ngIf="!summaryError()">
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Productos</span>
-              <span class="wms-summary-row-value">{{ products.length }}</span>
+              <span class="wms-summary-row-value">{{ products().length }}</span>
             </div>
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Unidades disponibles</span>
@@ -102,15 +102,15 @@
             </div>
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Órdenes de retiro</span>
-              <span class="wms-summary-row-value">{{ withdrawalOrders.length }}</span>
+              <span class="wms-summary-row-value">{{ withdrawalOrders().length }}</span>
             </div>
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Movimientos físicos</span>
-              <span class="wms-summary-row-value">{{ movements.length }}</span>
+              <span class="wms-summary-row-value">{{ movements().length }}</span>
             </div>
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Ubicaciones</span>
-              <span class="wms-summary-row-value">{{ locations.length }}</span>
+              <span class="wms-summary-row-value">{{ locations().length }}</span>
             </div>
           </div>
         </section>
@@ -121,12 +121,12 @@
             <p>{{ outOfStockCount }} productos</p>
           </div>
 
-          <p *ngIf="loadingSummary" class="p-5 text-sm text-gray-600">Cargando...</p>
-          <p *ngIf="!loadingSummary && outOfStockProducts.length === 0" class="p-5 text-sm text-gray-600">
+          <p *ngIf="loadingSummary()" class="p-5 text-sm text-gray-600">Cargando...</p>
+          <p *ngIf="!loadingSummary() && outOfStockProducts.length === 0" class="p-5 text-sm text-gray-600">
             Todos los productos tienen stock disponible.
           </p>
 
-          <div class="wms-table-wrap border-0" *ngIf="!loadingSummary && outOfStockProducts.length > 0">
+          <div class="wms-table-wrap border-0" *ngIf="!loadingSummary() && outOfStockProducts.length > 0">
             <table class="wms-table">
               <thead>
                 <tr>

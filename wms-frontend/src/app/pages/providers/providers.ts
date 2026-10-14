@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderForm, ProviderService } from '../../services/provider.service';
@@ -14,14 +14,14 @@ export class ProvidersComponent implements OnInit {
   readonly cuitPattern = '^(?:\\d{2}-\\d{8}-\\d{1}|\\d{11})$';
 
   form: ProviderForm = this.emptyForm();
-  providers: ProviderForm[] = [];
+  readonly providers = signal<ProviderForm[]>([]);
   editingId: number | null = null;
 
-  loading = false;
-  saving = false;
-  errorMessage = '';
-  successMessage = '';
-  listMessage = '';
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
+  readonly listMessage = signal('');
 
   constructor(private providerService: ProviderService) {}
 
@@ -40,22 +40,22 @@ export class ProvidersComponent implements OnInit {
   }
 
   loadProviders(): void {
-    this.loading = true;
-    this.listMessage = '';
+    this.loading.set(true);
+    this.listMessage.set('');
 
     this.providerService.getProviders().subscribe({
       next: (providers) => {
-        this.providers = providers;
-        this.loading = false;
+        this.providers.set(providers);
+        this.loading.set(false);
 
         if (providers.length === 0) {
-          this.listMessage = 'No hay proveedores cargados';
+          this.listMessage.set('No hay proveedores cargados');
         }
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar proveedores:', err);
-        this.listMessage = err.error?.error || 'No se pudieron cargar los proveedores';
+        this.listMessage.set(err.error?.error || 'No se pudieron cargar los proveedores');
       },
     });
   }
@@ -69,8 +69,8 @@ export class ProvidersComponent implements OnInit {
       mail: provider.mail,
       direccion: provider.direccion,
     };
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
   }
 
   cancelEdit(): void {
@@ -85,7 +85,7 @@ export class ProvidersComponent implements OnInit {
 
     this.providerService.deleteProvider(id).subscribe({
       next: () => {
-        this.successMessage = 'Proveedor eliminado correctamente';
+        this.successMessage.set('Proveedor eliminado correctamente');
         if (this.editingId === id) {
           this.cancelEdit();
         }
@@ -93,15 +93,15 @@ export class ProvidersComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al eliminar proveedor:', err);
-        this.errorMessage = err.error?.error || 'No se pudo eliminar el proveedor';
+        this.errorMessage.set(err.error?.error || 'No se pudo eliminar el proveedor');
       },
     });
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.saving = true;
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.saving.set(true);
 
     const request =
       this.editingId !== null
@@ -110,17 +110,17 @@ export class ProvidersComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.saving = false;
-        this.successMessage = this.editingId !== null
+        this.saving.set(false);
+        this.successMessage.set(this.editingId !== null
           ? 'Proveedor actualizado correctamente'
-          : 'Proveedor cargado correctamente';
+          : 'Proveedor cargado correctamente');
         this.cancelEdit();
         this.loadProviders();
       },
       error: (err) => {
-        this.saving = false;
+        this.saving.set(false);
         console.error('Error al guardar proveedor:', err);
-        this.errorMessage = err.error?.error || 'No se pudo guardar el proveedor';
+        this.errorMessage.set(err.error?.error || 'No se pudo guardar el proveedor');
       },
     });
   }

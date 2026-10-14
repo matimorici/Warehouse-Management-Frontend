@@ -10,13 +10,13 @@
       <a routerLink="/registrar" class="wms-action wms-action-success">Registrar Operario</a>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
-    <p *ngIf="loading" class="wms-empty">Cargando usuarios...</p>
-    <p *ngIf="!loading && listMessage" class="wms-empty">{{ listMessage }}</p>
+    <p *ngIf="loading()" class="wms-empty">Cargando usuarios...</p>
+    <p *ngIf="!loading() && listMessage()" class="wms-empty">{{ listMessage() }}</p>
 
-    <div class="wms-table-wrap" *ngIf="!loading && users.length > 0">
+    <div class="wms-table-wrap" *ngIf="!loading() && users().length > 0">
       <table class="wms-table">
         <thead>
           <tr>
@@ -29,7 +29,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users">
+          <tr *ngFor="let user of users()">
             <td class="wms-number">{{ user.idUsuario }}</td>
             <td>{{ user.nombre }}</td>
             <td>{{ user.apellido }}</td>

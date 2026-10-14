@@ -7,8 +7,8 @@
       <p>Registrá evaluaciones de desempeño: tiempos y forma de entrega, y relación precio/calidad.</p>
     </div>
 
-    <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       <section class="wms-panel">
@@ -19,21 +19,21 @@
               id="supplierFilter"
               name="supplierFilter"
               [(ngModel)]="selectedSupplierFilter"
-              [disabled]="loadingProviders"
+              [disabled]="loadingProviders()"
               (ngModelChange)="onFilterChange()"
             >
               <option [ngValue]="null">Todos los proveedores</option>
-              <option *ngFor="let provider of providers" [ngValue]="provider.idProveedor">
+              <option *ngFor="let provider of providers()" [ngValue]="provider.idProveedor">
                 {{ provider.razonSocial }}
               </option>
             </select>
           </div>
         </div>
 
-        <p *ngIf="loading" class="p-5 text-sm text-gray-600">Cargando valoraciones...</p>
-        <p *ngIf="!loading && listMessage" class="p-5 text-sm text-gray-600">{{ listMessage }}</p>
+        <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando valoraciones...</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
 
-        <div class="wms-table-wrap border-0" *ngIf="!loading && ratings.length > 0">
+        <div class="wms-table-wrap border-0" *ngIf="!loading() && ratings().length > 0">
           <table class="wms-table">
             <thead>
               <tr>
@@ -46,7 +46,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let rating of ratings">
+              <tr *ngFor="let rating of ratings()">
                 <td class="wms-number">{{ rating.dateTime }}</td>
                 <td>{{ providerName(rating.idSupplier) }}</td>
                 <td class="wms-number">{{ rating.deliveryTime ?? '—' }}</td>
@@ -84,12 +84,12 @@
               [(ngModel)]="form.idSupplier"
               #supplierModel="ngModel"
               required
-              [disabled]="loadingProviders || providers.length === 0"
+              [disabled]="loadingProviders() || providers().length === 0"
             >
               <option [ngValue]="null">
-                {{ loadingProviders ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}
+                {{ loadingProviders() ? 'Cargando proveedores...' : 'Seleccioná un proveedor' }}
               </option>
-              <option *ngFor="let provider of providers" [ngValue]="provider.idProveedor">
+              <option *ngFor="let provider of providers()" [ngValue]="provider.idProveedor">
                 {{ provider.razonSocial }} - {{ provider.cuit }}
               </option>
             </select>
@@ -135,8 +135,8 @@
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="ratingForm.invalid || saving">
-              {{ saving ? 'Guardando...' : editingId !== null ? 'Actualizar valoración' : 'Guardar valoración' }}
+            <button type="submit" class="wms-action wms-action-success" [disabled]="ratingForm.invalid || saving()">
+              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar valoración' : 'Guardar valoración' }}
             </button>
             <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
               Cancelar

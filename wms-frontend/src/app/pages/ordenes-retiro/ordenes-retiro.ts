@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OrdenRetiroService, OrdenRetiroResponse } from '../../services/orden-retiro.service';
@@ -12,10 +12,10 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
   templateUrl: './ordenes-retiro.html',
 })
 export class OrdenesRetiroComponent implements OnInit {
-  orders: OrdenRetiroResponse[] = [];
-  loading = false;
-  errorMessage = '';
-  successMessage = '';
+  readonly orders = signal<OrdenRetiroResponse[]>([]);
+  readonly loading = signal(false);
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   constructor(
     private service: OrdenRetiroService,
@@ -31,17 +31,17 @@ export class OrdenesRetiroComponent implements OnInit {
   }
 
   loadOrders(): void {
-    this.loading = true;
-    this.errorMessage = '';
+    this.loading.set(true);
+    this.errorMessage.set('');
     this.service.list().subscribe({
       next: (data) => {
-        this.orders = data;
-        this.loading = false;
+        this.orders.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
-        this.loading = false;
+        this.loading.set(false);
         console.error('Error al cargar órdenes de retiro:', err);
-        this.errorMessage = err.error?.message || 'No se pudieron cargar las órdenes de retiro';
+        this.errorMessage.set(err.error?.message || 'No se pudieron cargar las órdenes de retiro');
       },
     });
   }
@@ -53,11 +53,11 @@ export class OrdenesRetiroComponent implements OnInit {
 
     this.service.delete(id).subscribe({
       next: () => {
-        this.successMessage = 'Orden de retiro eliminada correctamente';
+        this.successMessage.set('Orden de retiro eliminada correctamente');
         this.loadOrders();
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'No se pudo eliminar la orden de retiro';
+        this.errorMessage.set(err.error?.message || 'No se pudo eliminar la orden de retiro');
       },
     });
   }

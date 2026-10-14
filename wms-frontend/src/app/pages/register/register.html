@@ -8,8 +8,8 @@
     </div>
 
     <div class="wms-panel wms-form-panel max-w-2xl">
-      <div *ngIf="errorMessage" class="wms-error mb-4">{{ errorMessage }}</div>
-      <div *ngIf="successMessage" class="wms-success mb-4">{{ successMessage }}</div>
+      <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
+      <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
       <form #registerForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-4" novalidate>
         <div class="wms-field">

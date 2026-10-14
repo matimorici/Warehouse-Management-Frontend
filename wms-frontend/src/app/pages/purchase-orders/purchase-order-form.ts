@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,24 +20,24 @@ import { PageTopbarComponent } from '../../shared/page-topbar';
 export class PurchaseOrderFormComponent implements OnInit {
   isEditMode = false;
   orderId: number | null = null;
-  order: PurchaseOrderInfo | null = null;
+  readonly order = signal<PurchaseOrderInfo | null>(null);
 
   form: PurchaseOrderForm = {
     idSupplier: null,
     lines: [],
   };
 
-  providers: ProviderForm[] = [];
-  products: ProductInfo[] = [];
+  readonly providers = signal<ProviderForm[]>([]);
+  readonly products = signal<ProductInfo[]>([]);
 
-  loadingOrder = false;
-  loadingProviders = false;
-  loadingProducts = false;
-  saving = false;
-  showReceiveDialog = false;
+  readonly loadingOrder = signal(false);
+  readonly loadingProviders = signal(false);
+  readonly loadingProducts = signal(false);
+  readonly saving = signal(false);
+  readonly showReceiveDialog = signal(false);
 
-  errorMessage = '';
-  successMessage = '';
+  readonly errorMessage = signal('');
+  readonly successMessage = signal('');
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
@@ -63,7 +63,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   get status(): string {
-    return this.order?.status ?? '';
+    return this.order()?.status ?? '';
   }
 
   get canReceive(): boolean {
@@ -101,10 +101,10 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   loadOrder(id: number): void {
-    this.loadingOrder = true;
+    this.loadingOrder.set(true);
     this.purchaseOrderService.getById(id).subscribe({
       next: (order) => {
-        this.order = order;
+        this.order.set(order);
         this.form = {
           idSupplier: order.idSupplier,
           lines: (order.lines ?? []).map((line) => ({
@@ -112,39 +112,39 @@ export class PurchaseOrderFormComponent implements OnInit {
             amount: line.amount,
           })),
         };
-        this.loadingOrder = false;
+        this.loadingOrder.set(false);
       },
       error: (err) => {
-        this.loadingOrder = false;
+        this.loadingOrder.set(false);
         console.error('Error al cargar orden de compra:', err);
-        this.errorMessage = err.error?.error || 'No se pudo cargar la orden de compra';
+        this.errorMessage.set(err.error?.error || 'No se pudo cargar la orden de compra');
       },
     });
   }
 
   loadProviders(): void {
-    this.loadingProviders = true;
+    this.loadingProviders.set(true);
     this.providerService.getProviders().subscribe({
       next: (providers) => {
-        this.providers = providers;
-        this.loadingProviders = false;
+        this.providers.set(providers);
+        this.loadingProviders.set(false);
       },
       error: (err) => {
-        this.loadingProviders = false;
+        this.loadingProviders.set(false);
         console.error('Error al cargar proveedores:', err);
       },
     });
   }
 
   loadProducts(): void {
-    this.loadingProducts = true;
+    this.loadingProducts.set(true);
     this.productService.getProducts().subscribe({
       next: (products) => {
-        this.products = products;
-        this.loadingProducts = false;
+        this.products.set(products);
+        this.loadingProducts.set(false);
       },
       error: (err) => {
-        this.loadingProducts = false;
+        this.loadingProducts.set(false);
         console.error('Error al cargar productos:', err);
       },
     });
@@ -154,7 +154,7 @@ export class PurchaseOrderFormComponent implements OnInit {
     if (!id) {
       return '—';
     }
-    const product = this.products.find((p) => p.idProducto === id);
+    const product = this.products().find((p) => p.idProducto === id);
     return product ? product.nombreProducto : `Producto #${id}`;
   }
 
@@ -167,26 +167,26 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     if (!this.form.idSupplier) {
-      this.errorMessage = 'Tenés que seleccionar un proveedor';
+      this.errorMessage.set('Tenés que seleccionar un proveedor');
       return;
     }
 
     if (this.form.lines.length === 0) {
-      this.errorMessage = 'Agregá al menos una línea de producto';
+      this.errorMessage.set('Agregá al menos una línea de producto');
       return;
     }
 
     const invalidLines = this.form.lines.filter((l) => !l.idProduct || l.amount < 1);
     if (invalidLines.length > 0) {
-      this.errorMessage = 'Completá todos los productos y cantidades (mínimo 1)';
+      this.errorMessage.set('Completá todos los productos y cantidades (mínimo 1)');
       return;
     }
 
-    this.saving = true;
+    this.saving.set(true);
 
     const request =
       this.isEditMode && this.orderId
@@ -195,26 +195,26 @@ export class PurchaseOrderFormComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.saving = false;
-        this.successMessage = this.isEditMode
+        this.saving.set(false);
+        this.successMessage.set(this.isEditMode
           ? 'Orden de compra actualizada correctamente'
-          : 'Orden de compra creada correctamente';
+          : 'Orden de compra creada correctamente');
         setTimeout(() => this.router.navigate(['/ordenes-compra']), 1200);
       },
       error: (err) => {
-        this.saving = false;
+        this.saving.set(false);
         console.error('Error al guardar orden de compra:', err);
-        this.errorMessage = err.error?.error || 'No se pudo guardar la orden de compra';
+        this.errorMessage.set(err.error?.error || 'No se pudo guardar la orden de compra');
       },
     });
   }
 
   openReceiveDialog(): void {
-    this.showReceiveDialog = true;
+    this.showReceiveDialog.set(true);
   }
 
   cancelReceive(): void {
-    this.showReceiveDialog = false;
+    this.showReceiveDialog.set(false);
   }
 
   confirmReceive(): void {
@@ -222,20 +222,20 @@ export class PurchaseOrderFormComponent implements OnInit {
       return;
     }
 
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorMessage.set('');
+    this.successMessage.set('');
 
     this.purchaseOrderService.receive(this.orderId).subscribe({
       next: (order) => {
-        this.order = order;
-        this.showReceiveDialog = false;
-        this.successMessage = 'Orden recibida: el stock de los productos fue actualizado';
+        this.order.set(order);
+        this.showReceiveDialog.set(false);
+        this.successMessage.set('Orden recibida: el stock de los productos fue actualizado');
         this.loadProducts();
       },
       error: (err) => {
-        this.showReceiveDialog = false;
+        this.showReceiveDialog.set(false);
         console.error('Error al recibir orden de compra:', err);
-        this.errorMessage = err.error?.error || 'No se pudo recibir la orden de compra';
+        this.errorMessage.set(err.error?.error || 'No se pudo recibir la orden de compra');
       },
     });
   }
