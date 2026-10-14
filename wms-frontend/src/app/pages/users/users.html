@@ -57,4 +57,17 @@
       </table>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDelete() as user"
+    title="Eliminar usuario"
+    [message]="
+      'Se eliminará el usuario ' +
+      user.nombre +
+      ' ' +
+      user.apellido +
+      '. Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

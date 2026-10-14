@@ -78,7 +78,7 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 - [x] **Not-found / 403 page** — `/sin-acceso` (`ForbiddenComponent`) and wildcard `**` → `NotFoundComponent`.
 - [x] **Specs** — creation specs for every new component (`product-detail`, `locations`, `supplier-ratings`, `purchase-orders`, `purchase-order-form`, `physical-movements`, `users`, `forbidden`, `not-found`, `page-topbar`); `operator-home.spec.ts` updated with `provideHttpClient()` / `provideHttpClientTesting()`.
 
-> Verified: `npm run build` clean and `npm test` → 20 spec files / 21 tests pass. Node isn't on the sandbox `PATH`; use the portable binary at `/tmp/opencode/node/bin` (prefix `PATH`) when running commands from `wms-frontend/`.
+> Historical verification: at that point, `npm run build` was clean and `npm test` reported 20 spec files / 21 passing tests. The later signal migration changed component APIs; update affected specs before relying on that earlier test result. Node isn't on the sandbox `PATH`; use the portable binary at `/tmp/opencode/node/bin` (prefix `PATH`) when running commands from `wms-frontend/`.
 
 ## ✅ Already fixed
 
@@ -87,3 +87,58 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 - `auth.service.ts` — `login()` now accepts `{ cuil, contrasena }`, removed token extraction logic from `saveSession()`
 - `login.ts` — form fields renamed from `username`/`password` to `cuil`/`contrasena`
 - `login.html` — template bindings updated to match
+
+## 🔎 Revisión de estructura y buenas prácticas — 2026-10-14
+
+### Lo que ya está bien encaminado
+
+- Componentes standalone, TypeScript estricto y plantillas con `strictTemplates`.
+- Separación comprensible entre `pages/`, `services/` y `shared/`, con interfaces para la mayoría de los contratos de API.
+- URL de API centralizada, rutas/guardas agrupadas y una barra superior reutilizada.
+- El estado asíncrono de las pantallas ya usa señales, compatible con el modelo zoneless de Angular 21.
+
+### 🔴 Prioridad alta
+
+- [ ] **Actualizar y ampliar las specs después de migrar a señales** — La mayoría de las specs sólo comprueba `should create`. Además, `locations.spec.ts` sigue esperando valores planos (`component.successMessage`, `component.locations`, `component.loading`), aunque ahora son señales. Leerlas como `component.successMessage()`, etc., y añadir pruebas de plantilla para carga, lista con datos, lista vacía y error; empezar por `ordenes-retiro`.
+- [ ] **Quitar Zone.js si no hay dependencias ocultas** — Angular 21 usa zoneless por defecto y el estado de las vistas ya se actualiza con señales. `angular.json` todavía carga `zone.js` y `package.json` lo conserva. Confirmar que ninguna librería requiere Zone.js; después quitar el polyfill, la dependencia y su entrada del lockfile.
+- [ ] **Verificar autorización en el backend** — `authGuard` y `roleGuard` leen el rol desde `localStorage`; sirven para navegación, pero el cliente puede modificarlos. Confirmar que cada endpoint protegido valida la sesión y los permisos en el servidor.
+
+### 🟡 Prioridad media
+
+- [ ] **Cargar páginas bajo demanda** — `app.routes.ts` importa todas las páginas de forma estática. Migrar rutas a `loadComponent` para dividir el bundle inicial, sobre todo las pantallas administrativas que no todos los usuarios necesitan.
+- [ ] **Eliminar tipos `any` y casts engañosos** — `AuthService`, `ProductService` y `ProviderService` retornan `Observable<any>`. Definir DTOs de entrada/salida. En `products.ts`, reemplazar `null as unknown as number` por tipos de formulario que acepten `null` y validar antes de enviar.
+- [ ] **Hacer explícito el inicio de CSRF** — `App` dispara un GET a `/productos` en el constructor y descarta errores para obtener la cookie CSRF. Documentar la dependencia y garantizar que termine antes del primer POST; idealmente, integrarlo en el flujo de autenticación o en una inicialización explícita.
+- [ ] **Unificar manejo de errores y timeout HTTP** — Los servicios repiten `timeout(15000)` y `catchError` con `console.error`, y varias pantallas vuelven a registrar el mismo error. Centralizar el manejo de transporte/logging (por ejemplo, con un interceptor o helper) y dejar en cada página el mensaje de usuario específico.
+- [ ] **Agregar comandos de calidad al proyecto** — Prettier está instalado, pero `package.json` no ofrece scripts de formato ni hay configuración de lint. Agregar `format:check` y lint con Angular ESLint para detectar problemas antes del build.
+- [ ] **Evitar temporizadores de navegación sin cancelar** — Los formularios de registro y órdenes usan `setTimeout` después de guardar. Si el componente se destruye antes, el temporizador sigue activo. Usar un flujo RxJS cancelable o navegar en un momento explícito del flujo de éxito.
+
+### 🟢 Prioridad baja / al crecer el proyecto
+
+- [ ] **Agrupar contratos y servicios por funcionalidad cuando aumente el tamaño** — Hoy la división `pages/`, `services/` y `shared/` es fácil de recorrer. Si aparecen más pantallas por dominio, mover modelos/servicios junto a `ordenes-retiro/`, `productos/`, etc., evitando crear capas genéricas antes de necesitarlas.
+- [ ] **Revisar componentes reutilizables de listado y formulario** — Varias páginas repiten tablas, estados de carga/vacío/error y acciones CRUD. Extraer sólo patrones que ya tengan comportamiento y presentación estables para reducir divergencias sin introducir abstracciones prematuras.
+
+## 🎛️ Revisión de patrones de interacción y UX — 2026-10-14
+
+### Patrones que ya ayudan
+
+- Los formularios suelen tener etiquetas visibles, validación en línea y un estado de guardado.
+- Los listados usan estados vacíos y filtros cuando la tarea lo necesita; las órdenes de compra muestran estados reconocibles con badges.
+- La barra superior compartida y los tokens globales dan consistencia entre pantallas.
+
+### 🔴 Prioridad alta
+
+- [x] **Hacer mutuamente excluyentes los estados de listado** — Órdenes de retiro ya no muestra el estado vacío cuando la consulta falla y permite reintentar; órdenes de compra también separa error de lista vacía.
+- [x] **Explicar y recuperar fallos al cargar opciones de formularios** — Los formularios de órdenes de retiro y compra muestran el fallo junto al selector, permiten reintentar y bloquean el envío mientras faltan opciones. Movimientos físicos también permite reintentar sus listas de productos, ubicaciones y usuarios.
+- [x] **Evitar envíos duplicados** — Orden de retiro expone el estado de guardado, cambia el texto del botón y bloquea nuevos envíos durante la solicitud.
+
+### 🟡 Prioridad media
+
+- [x] **Mostrar datos legibles y localizados** — Órdenes de retiro muestra el nombre de usuario y usa el ID como respaldo. Fechas de órdenes, movimientos, valoraciones y stock usan `dd/MM/yyyy, HH:mm` con la zona local del navegador.
+- [x] **Unificar confirmación de acciones destructivas** — Los borrados usan un diálogo compartido que nombra el registro, describe que la acción no se puede deshacer, permite cancelar con Escape y enfoca Cancelar al abrirse.
+- [x] **No presentar ceros como datos confirmados durante la carga** — El panel de resumen oculta los contadores hasta completar su carga inicial.
+- [x] **Completar el flujo de validación del formulario** — Las órdenes permiten enviar para recibir mensajes de validación, muestran errores junto a campos inválidos y enfocan el primer campo inválido. Los mensajes globales de éxito/error se anuncian con regiones accesibles.
+
+### 🟢 Prioridad baja / validar con uso real
+
+- [ ] **Revisar tablas en móvil** — El contenedor permite scroll horizontal, pero falta validar visualmente con anchos pequeños y comprobar que las acciones clave queden fáciles de descubrir.
+- [ ] **Añadir búsqueda, orden y paginación según volumen** — Antes de agregar controles a todos los listados, confirmar cuántos registros usan en operación. Incorporar búsqueda/orden/paginación primero en las listas que crezcan o se consulten con frecuencia.

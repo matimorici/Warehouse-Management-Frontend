@@ -4,7 +4,9 @@
   <main class="wms-content pb-10">
     <div class="wms-page-heading">
       <h1>Valoraciones de proveedor</h1>
-      <p>Registrá evaluaciones de desempeño: tiempos y forma de entrega, y relación precio/calidad.</p>
+      <p>
+        Registrá evaluaciones de desempeño: tiempos y forma de entrega, y relación precio/calidad.
+      </p>
     </div>
 
     <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
@@ -31,7 +33,9 @@
         </div>
 
         <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando valoraciones...</p>
-        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">
+          {{ listMessage() }}
+        </p>
 
         <div class="wms-table-wrap border-0" *ngIf="!loading() && ratings().length > 0">
           <table class="wms-table">
@@ -47,14 +51,18 @@
             </thead>
             <tbody>
               <tr *ngFor="let rating of ratings()">
-                <td class="wms-number">{{ rating.dateTime }}</td>
+                <td class="wms-number">{{ rating.dateTime | date: 'dd/MM/yyyy, HH:mm' }}</td>
                 <td>{{ providerName(rating.idSupplier) }}</td>
                 <td class="wms-number">{{ rating.deliveryTime ?? '—' }}</td>
                 <td>{{ rating.deliveryMethod || '—' }}</td>
                 <td>{{ rating.priceQualityRatio || '—' }}</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <button type="button" class="wms-action wms-action-secondary wms-action-sm" (click)="editRating(rating)">
+                    <button
+                      type="button"
+                      class="wms-action wms-action-secondary wms-action-sm"
+                      (click)="editRating(rating)"
+                    >
                       Editar
                     </button>
                     <button
@@ -93,7 +101,10 @@
                 {{ provider.razonSocial }} - {{ provider.cuit }}
               </option>
             </select>
-            <p *ngIf="supplierModel.touched && supplierModel.errors?.['required']" class="wms-field-error">
+            <p
+              *ngIf="supplierModel.touched && supplierModel.errors?.['required']"
+              class="wms-field-error"
+            >
               Tenés que seleccionar un proveedor
             </p>
           </div>
@@ -135,10 +146,25 @@
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="ratingForm.invalid || saving()">
-              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar valoración' : 'Guardar valoración' }}
+            <button
+              type="submit"
+              class="wms-action wms-action-success"
+              [disabled]="ratingForm.invalid || saving()"
+            >
+              {{
+                saving()
+                  ? 'Guardando...'
+                  : editingId !== null
+                    ? 'Actualizar valoración'
+                    : 'Guardar valoración'
+              }}
             </button>
-            <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
+            <button
+              *ngIf="editingId !== null"
+              type="button"
+              class="wms-action wms-action-secondary"
+              (click)="cancelEdit()"
+            >
               Cancelar
             </button>
           </div>
@@ -146,4 +172,13 @@
       </aside>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDeleteId() !== null"
+    title="Eliminar valoración"
+    [message]="
+      'Se eliminará la valoración #' + pendingDeleteId() + '. Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

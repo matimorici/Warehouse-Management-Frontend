@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   PurchaseOrderForm,
@@ -33,6 +33,8 @@ export class PurchaseOrderFormComponent implements OnInit {
   readonly loadingOrder = signal(false);
   readonly loadingProviders = signal(false);
   readonly loadingProducts = signal(false);
+  readonly providerLoadMessage = signal('');
+  readonly productLoadMessage = signal('');
   readonly saving = signal(false);
   readonly showReceiveDialog = signal(false);
 
@@ -123,6 +125,7 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   loadProviders(): void {
+    this.providerLoadMessage.set('');
     this.loadingProviders.set(true);
     this.providerService.getProviders().subscribe({
       next: (providers) => {
@@ -131,12 +134,16 @@ export class PurchaseOrderFormComponent implements OnInit {
       },
       error: (err) => {
         this.loadingProviders.set(false);
+        this.providerLoadMessage.set(
+          'No se pudieron cargar los proveedores. Reintentá la carga para continuar.',
+        );
         console.error('Error al cargar proveedores:', err);
       },
     });
   }
 
   loadProducts(): void {
+    this.productLoadMessage.set('');
     this.loadingProducts.set(true);
     this.productService.getProducts().subscribe({
       next: (products) => {
@@ -145,6 +152,9 @@ export class PurchaseOrderFormComponent implements OnInit {
       },
       error: (err) => {
         this.loadingProducts.set(false);
+        this.productLoadMessage.set(
+          'No se pudieron cargar los productos. Reintentá la carga para continuar.',
+        );
         console.error('Error al cargar productos:', err);
       },
     });
@@ -166,9 +176,18 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.form.lines.splice(index, 1);
   }
 
-  onSubmit(): void {
+  onSubmit(orderForm: NgForm): void {
     this.errorMessage.set('');
     this.successMessage.set('');
+
+    if (orderForm.invalid) {
+      orderForm.form.markAllAsTouched();
+      this.errorMessage.set('Revisá los campos marcados antes de guardar.');
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLElement>('form input:invalid, form select:invalid')?.focus(),
+      );
+      return;
+    }
 
     if (!this.form.idSupplier) {
       this.errorMessage.set('Tenés que seleccionar un proveedor');
@@ -196,9 +215,11 @@ export class PurchaseOrderFormComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.successMessage.set(this.isEditMode
-          ? 'Orden de compra actualizada correctamente'
-          : 'Orden de compra creada correctamente');
+        this.successMessage.set(
+          this.isEditMode
+            ? 'Orden de compra actualizada correctamente'
+            : 'Orden de compra creada correctamente',
+        );
         setTimeout(() => this.router.navigate(['/ordenes-compra']), 1200);
       },
       error: (err) => {

@@ -1,8 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OrdenRetiroService, OrdenRetiroCreate, LineaRetiroCreate } from '../../services/orden-retiro.service';
+import {
+  OrdenRetiroService,
+  OrdenRetiroCreate,
+  LineaRetiroCreate,
+} from '../../services/orden-retiro.service';
 import { ProductService, ProductInfo } from '../../services/product.service';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
@@ -32,6 +36,9 @@ export class OrdenRetiroFormComponent implements OnInit {
   readonly products = signal<ProductInfo[]>([]);
   readonly loadingUsers = signal(false);
   readonly loadingProducts = signal(false);
+  readonly userLoadMessage = signal('');
+  readonly productLoadMessage = signal('');
+  readonly saving = signal(false);
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
 
@@ -75,6 +82,7 @@ export class OrdenRetiroFormComponent implements OnInit {
   }
 
   loadUsers(): void {
+    this.userLoadMessage.set('');
     this.loadingUsers.set(true);
     this.authService.getUsers().subscribe({
       next: (users) => {
@@ -83,12 +91,16 @@ export class OrdenRetiroFormComponent implements OnInit {
       },
       error: (err) => {
         this.loadingUsers.set(false);
+        this.userLoadMessage.set(
+          'No se pudieron cargar los usuarios. Reintentá la carga para continuar.',
+        );
         console.error('Error al cargar usuarios:', err);
       },
     });
   }
 
   loadProducts(): void {
+    this.productLoadMessage.set('');
     this.loadingProducts.set(true);
     this.productService.getProducts().subscribe({
       next: (products) => {
@@ -97,6 +109,9 @@ export class OrdenRetiroFormComponent implements OnInit {
       },
       error: (err) => {
         this.loadingProducts.set(false);
+        this.productLoadMessage.set(
+          'No se pudieron cargar los productos. Reintentá la carga para continuar.',
+        );
         console.error('Error al cargar productos:', err);
       },
     });
@@ -121,9 +136,18 @@ export class OrdenRetiroFormComponent implements OnInit {
     this.form.lineasRetiro.splice(index, 1);
   }
 
-  onSubmit(): void {
+  onSubmit(orderForm: NgForm): void {
     this.errorMessage.set('');
     this.successMessage.set('');
+
+    if (orderForm.invalid) {
+      orderForm.form.markAllAsTouched();
+      this.errorMessage.set('Revisá los campos marcados antes de guardar.');
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLElement>('form input:invalid, form select:invalid')?.focus(),
+      );
+      return;
+    }
 
     if (!this.form.idUsuario) {
       this.errorMessage.set('Tenés que seleccionar un usuario');
@@ -143,27 +167,31 @@ export class OrdenRetiroFormComponent implements OnInit {
 
     const dto: OrdenRetiroCreate = {
       idUsuario: this.form.idUsuario,
-      lineasRetiro: this.form.lineasRetiro.map(
-        (l): LineaRetiroCreate => ({
-          idProducto: l.idProducto!,
-          cantidad: l.cantidad,
-        }),
-      ),
+      lineasRetiro: this.form.lineasRetiro.map((l): LineaRetiroCreate => ({
+        idProducto: l.idProducto!,
+        cantidad: l.cantidad,
+      })),
     };
 
-    const request = this.isEditMode && this.orderId
-      ? this.service.update(this.orderId, dto)
-      : this.service.create(dto);
+    const request =
+      this.isEditMode && this.orderId
+        ? this.service.update(this.orderId, dto)
+        : this.service.create(dto);
 
+    this.saving.set(true);
     request.subscribe({
       next: () => {
-        this.successMessage.set(this.isEditMode
-          ? 'Orden de retiro actualizada correctamente'
-          : 'Orden de retiro creada correctamente');
+        this.saving.set(false);
+        this.successMessage.set(
+          this.isEditMode
+            ? 'Orden de retiro actualizada correctamente'
+            : 'Orden de retiro creada correctamente',
+        );
         this.loadProducts();
         setTimeout(() => this.router.navigate(['/ordenes-retiro']), 1500);
       },
       error: (err) => {
+        this.saving.set(false);
         this.errorMessage.set(err.error?.message || 'No se pudo guardar la orden de retiro');
       },
     });

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocationInfo, LocationService } from '../../services/location.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog';
 
 @Component({
   selector: 'app-locations',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageTopbarComponent],
+  imports: [CommonModule, FormsModule, PageTopbarComponent, ConfirmDialogComponent],
   templateUrl: './locations.html',
 })
 export class LocationsComponent implements OnInit {
@@ -20,6 +21,7 @@ export class LocationsComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly listMessage = signal('');
+  readonly pendingDelete = signal<LocationInfo | null>(null);
 
   constructor(private locationService: LocationService) {}
 
@@ -61,10 +63,15 @@ export class LocationsComponent implements OnInit {
   }
 
   deleteLocation(id: number): void {
-    if (!confirm('¿Estás seguro de eliminar esta ubicación?')) {
-      return;
-    }
+    const location = this.locations().find((item) => item.id === id);
+    if (location) this.pendingDelete.set(location);
+  }
 
+  confirmDelete(): void {
+    const location = this.pendingDelete();
+    if (!location) return;
+    this.pendingDelete.set(null);
+    const id = location.id;
     this.locationService.delete(id).subscribe({
       next: () => {
         this.successMessage.set('Ubicación eliminada correctamente');
@@ -80,6 +87,10 @@ export class LocationsComponent implements OnInit {
     });
   }
 
+  cancelDelete(): void {
+    this.pendingDelete.set(null);
+  }
+
   onSubmit(): void {
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -93,9 +104,11 @@ export class LocationsComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.successMessage.set(this.editingId !== null
-          ? 'Ubicación actualizada correctamente'
-          : 'Ubicación creada correctamente');
+        this.successMessage.set(
+          this.editingId !== null
+            ? 'Ubicación actualizada correctamente'
+            : 'Ubicación creada correctamente',
+        );
         this.cancelEdit();
         this.loadLocations();
       },

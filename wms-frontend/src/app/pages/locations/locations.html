@@ -18,7 +18,9 @@
         </div>
 
         <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando ubicaciones...</p>
-        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">
+          {{ listMessage() }}
+        </p>
 
         <div class="wms-table-wrap border-0" *ngIf="!loading() && locations().length > 0">
           <table class="wms-table">
@@ -35,7 +37,11 @@
                 <td>{{ location.name }}</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <button type="button" class="wms-action wms-action-secondary wms-action-sm" (click)="editLocation(location)">
+                    <button
+                      type="button"
+                      class="wms-action wms-action-secondary wms-action-sm"
+                      (click)="editLocation(location)"
+                    >
                       Editar
                     </button>
                     <button
@@ -79,10 +85,25 @@
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="locationForm.invalid || saving()">
-              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar ubicación' : 'Guardar ubicación' }}
+            <button
+              type="submit"
+              class="wms-action wms-action-success"
+              [disabled]="locationForm.invalid || saving()"
+            >
+              {{
+                saving()
+                  ? 'Guardando...'
+                  : editingId !== null
+                    ? 'Actualizar ubicación'
+                    : 'Guardar ubicación'
+              }}
             </button>
-            <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
+            <button
+              *ngIf="editingId !== null"
+              type="button"
+              class="wms-action wms-action-secondary"
+              (click)="cancelEdit()"
+            >
               Cancelar
             </button>
           </div>
@@ -90,4 +111,13 @@
       </aside>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDelete() as location"
+    title="Eliminar ubicación"
+    [message]="
+      'Se eliminará la ubicación «' + location.name + '». Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

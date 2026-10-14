@@ -1,0 +1,28 @@
+<div class="wms-dialog-backdrop" (click)="cancelled.emit()">
+  <section
+    class="wms-dialog"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirm-dialog-title"
+    aria-describedby="confirm-dialog-message"
+    tabindex="-1"
+    (click)="$event.stopPropagation()"
+    (keydown)="keepFocusInside($event)"
+  >
+    <h2 id="confirm-dialog-title" class="wms-dialog-title">{{ title }}</h2>
+    <p id="confirm-dialog-message" class="wms-dialog-body">{{ message }}</p>
+    <div class="wms-dialog-actions">
+      <button
+        #cancelButton
+        type="button"
+        class="wms-action wms-action-secondary"
+        (click)="cancelled.emit()"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="wms-action wms-action-danger" (click)="confirmed.emit()">
+        {{ confirmLabel }}
+      </button>
+    </div>
+  </section>
+</div>

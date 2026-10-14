@@ -11,21 +11,31 @@
       <p>Seleccioná el usuario y cargá las líneas de productos a retirar.</p>
     </div>
 
-    <div *ngIf="errorMessage()" class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div
+      *ngIf="errorMessage()"
+      class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+      role="alert"
+    >
       {{ errorMessage() }}
     </div>
 
-    <div *ngIf="successMessage()" class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
+    <div
+      *ngIf="successMessage()"
+      class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
+      role="status"
+      aria-live="polite"
+    >
       {{ successMessage() }}
     </div>
 
     <div *ngIf="loadingOrder()" class="py-8 text-center text-gray-500">Cargando orden...</div>
 
     <div *ngIf="!loadingOrder()" class="wms-panel wms-form-panel">
-      <form #orderForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+      <form #orderForm="ngForm" (ngSubmit)="onSubmit(orderForm)" novalidate>
         <div class="mb-6">
           <label class="mb-1 block text-sm font-medium text-gray-700">Usuario</label>
           <select
+            id="idUsuario"
             [(ngModel)]="form.idUsuario"
             name="idUsuario"
             #idUsuarioModel="ngModel"
@@ -40,7 +50,16 @@
               {{ user.nombre }} {{ user.apellido }} - {{ user.cuil }}
             </option>
           </select>
-          <p *ngIf="idUsuarioModel.touched && idUsuarioModel.errors?.['required']" class="mt-1 text-sm text-red-600">
+          <p *ngIf="userLoadMessage()" class="mt-1 text-sm text-red-700" role="alert">
+            {{ userLoadMessage() }}
+            <button type="button" class="underline underline-offset-2" (click)="loadUsers()">
+              Reintentar
+            </button>
+          </p>
+          <p
+            *ngIf="idUsuarioModel.touched && idUsuarioModel.errors?.['required']"
+            class="mt-1 text-sm text-red-600"
+          >
             Tenés que seleccionar un usuario
           </p>
         </div>
@@ -57,17 +76,25 @@
             </button>
           </div>
 
-          <div *ngIf="form.lineasRetiro.length === 0" class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500">
+          <div
+            *ngIf="form.lineasRetiro.length === 0"
+            class="rounded-lg border border-dashed border-gray-300 py-6 text-center text-sm text-gray-500"
+          >
             No hay líneas de retiro. Hacé clic en "Agregar línea" para empezar.
           </div>
 
-          <div *ngFor="let line of form.lineasRetiro; let i = index" class="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div
+            *ngFor="let line of form.lineasRetiro; let i = index"
+            class="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+          >
             <div class="flex items-end gap-4">
               <div class="flex-1">
                 <label class="mb-1 block text-sm font-medium text-gray-700">Producto</label>
                 <select
+                  [id]="'idProducto_' + i"
                   [(ngModel)]="line.idProducto"
                   [name]="'idProducto_' + i"
+                  #productModel="ngModel"
                   required
                   [disabled]="loadingProducts() || products().length === 0"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100"
@@ -80,6 +107,22 @@
                     <span class="text-gray-400">(disp: {{ p.cantidadDisponible }})</span>
                   </option>
                 </select>
+                <p
+                  *ngIf="productModel.touched && productModel.errors?.['required']"
+                  class="mt-1 text-sm text-red-600"
+                >
+                  Seleccioná un producto
+                </p>
+                <p *ngIf="productLoadMessage()" class="mt-1 text-sm text-red-700" role="alert">
+                  {{ productLoadMessage() }}
+                  <button
+                    type="button"
+                    class="underline underline-offset-2"
+                    (click)="loadProducts()"
+                  >
+                    Reintentar
+                  </button>
+                </p>
 
                 <div *ngIf="line.idProducto" class="mt-1">
                   <span
@@ -100,10 +143,20 @@
                   type="number"
                   [(ngModel)]="line.cantidad"
                   [name]="'cantidad_' + i"
+                  #quantityModel="ngModel"
                   required
                   min="1"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
+                <p
+                  *ngIf="
+                    quantityModel.touched &&
+                    (quantityModel.errors?.['required'] || quantityModel.errors?.['min'])
+                  "
+                  class="mt-1 text-sm text-red-600"
+                >
+                  Ingresá una cantidad de al menos 1
+                </p>
                 <p *ngIf="isStockWarning(line)" class="mt-1 text-xs text-yellow-700">
                   La cantidad supera el stock disponible
                 </p>
@@ -122,10 +175,16 @@
 
         <button
           type="submit"
-          [disabled]="orderForm.invalid"
+          [disabled]="
+            saving() ||
+            loadingUsers() ||
+            loadingProducts() ||
+            !!userLoadMessage() ||
+            !!productLoadMessage()
+          "
           class="wms-action wms-action-success disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {{ isEditMode ? 'Actualizar orden' : 'Crear orden' }}
+          {{ saving() ? 'Guardando...' : isEditMode ? 'Actualizar orden' : 'Crear orden' }}
         </button>
       </form>
     </div>

@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { PurchaseOrderInfo, PurchaseOrderService } from '../../services/purchase-order.service';
 import { ProviderForm, ProviderService } from '../../services/provider.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog';
 
 @Component({
   selector: 'app-purchase-orders',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTopbarComponent],
+  imports: [CommonModule, RouterLink, PageTopbarComponent, ConfirmDialogComponent],
   templateUrl: './purchase-orders.html',
 })
 export class PurchaseOrdersComponent implements OnInit {
@@ -18,6 +19,8 @@ export class PurchaseOrdersComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly listMessage = signal('');
+  readonly listError = signal(false);
+  readonly pendingDeleteId = signal<number | null>(null);
 
   constructor(
     private purchaseOrderService: PurchaseOrderService,
@@ -39,6 +42,7 @@ export class PurchaseOrdersComponent implements OnInit {
   loadOrders(): void {
     this.loading.set(true);
     this.listMessage.set('');
+    this.listError.set(false);
 
     this.purchaseOrderService.list().subscribe({
       next: (orders) => {
@@ -53,6 +57,7 @@ export class PurchaseOrdersComponent implements OnInit {
         this.loading.set(false);
         console.error('Error al cargar órdenes de compra:', err);
         this.listMessage.set(err.error?.error || 'No se pudieron cargar las órdenes de compra');
+        this.listError.set(true);
       },
     });
   }
@@ -97,10 +102,13 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   deleteOrder(id: number): void {
-    if (!confirm('¿Estás seguro de eliminar esta orden de compra?')) {
-      return;
-    }
+    this.pendingDeleteId.set(id);
+  }
 
+  confirmDelete(): void {
+    const id = this.pendingDeleteId();
+    if (id === null) return;
+    this.pendingDeleteId.set(null);
     this.purchaseOrderService.delete(id).subscribe({
       next: () => {
         this.successMessage.set('Orden de compra eliminada correctamente');
@@ -111,5 +119,9 @@ export class PurchaseOrdersComponent implements OnInit {
         this.errorMessage.set(err.error?.error || 'No se pudo eliminar la orden de compra');
       },
     });
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteId.set(null);
   }
 }

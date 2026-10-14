@@ -8,11 +8,12 @@ import {
 } from '../../services/supplier-rating.service';
 import { ProviderForm, ProviderService } from '../../services/provider.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog';
 
 @Component({
   selector: 'app-supplier-ratings',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageTopbarComponent],
+  imports: [CommonModule, FormsModule, PageTopbarComponent, ConfirmDialogComponent],
   templateUrl: './supplier-ratings.html',
 })
 export class SupplierRatingsComponent implements OnInit {
@@ -29,6 +30,7 @@ export class SupplierRatingsComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly listMessage = signal('');
+  readonly pendingDeleteId = signal<number | null>(null);
 
   constructor(
     private ratingService: SupplierRatingService,
@@ -111,10 +113,13 @@ export class SupplierRatingsComponent implements OnInit {
   }
 
   deleteRating(id: number): void {
-    if (!confirm('¿Estás seguro de eliminar esta valoración?')) {
-      return;
-    }
+    this.pendingDeleteId.set(id);
+  }
 
+  confirmDelete(): void {
+    const id = this.pendingDeleteId();
+    if (id === null) return;
+    this.pendingDeleteId.set(null);
     this.ratingService.delete(id).subscribe({
       next: () => {
         this.successMessage.set('Valoración eliminada correctamente');
@@ -128,6 +133,10 @@ export class SupplierRatingsComponent implements OnInit {
         this.errorMessage.set(err.error?.error || 'No se pudo eliminar la valoración');
       },
     });
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteId.set(null);
   }
 
   onSubmit(): void {
@@ -149,9 +158,11 @@ export class SupplierRatingsComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.successMessage.set(this.editingId !== null
-          ? 'Valoración actualizada correctamente'
-          : 'Valoración registrada correctamente');
+        this.successMessage.set(
+          this.editingId !== null
+            ? 'Valoración actualizada correctamente'
+            : 'Valoración registrada correctamente',
+        );
         this.cancelEdit();
         this.loadRatings();
       },

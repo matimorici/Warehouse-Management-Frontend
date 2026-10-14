@@ -10,7 +10,7 @@
       <div>
         <h1>{{ isEditMode ? 'Orden de compra #' + orderId : 'Nueva orden de compra' }}</h1>
         <p *ngIf="isEditMode && order()">
-          Registrada el {{ order()!.dateTime }}.
+          Registrada el {{ order()!.dateTime | date: 'dd/MM/yyyy, HH:mm' }}.
         </p>
         <p *ngIf="!isEditMode">Cargá el proveedor y las líneas de productos a pedir.</p>
       </div>
@@ -19,8 +19,10 @@
       </span>
     </div>
 
-    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
-    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4" role="alert">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4" role="status" aria-live="polite">
+      {{ successMessage() }}
+    </div>
 
     <p *ngIf="loadingOrder()" class="wms-empty">Cargando orden de compra...</p>
 
@@ -32,7 +34,7 @@
           Esta orden ya fue {{ statusLabel(status).toLowerCase() }} y no admite modificaciones.
         </p>
 
-        <form #orderForm="ngForm" (ngSubmit)="onSubmit()" class="grid gap-6" novalidate>
+        <form #orderForm="ngForm" (ngSubmit)="onSubmit(orderForm)" class="grid gap-6" novalidate>
           <div class="wms-field">
             <label for="idSupplier">Proveedor</label>
             <select
@@ -50,7 +52,16 @@
                 {{ provider.razonSocial }} - {{ provider.cuit }}
               </option>
             </select>
-            <p *ngIf="supplierModel.touched && supplierModel.errors?.['required']" class="wms-field-error">
+            <p *ngIf="providerLoadMessage()" class="wms-field-error" role="alert">
+              {{ providerLoadMessage() }}
+              <button type="button" class="underline underline-offset-2" (click)="loadProviders()">
+                Reintentar
+              </button>
+            </p>
+            <p
+              *ngIf="supplierModel.touched && supplierModel.errors?.['required']"
+              class="wms-field-error"
+            >
               Tenés que seleccionar un proveedor
             </p>
           </div>
@@ -79,6 +90,7 @@
                   [id]="'idProduct_' + i"
                   [(ngModel)]="line.idProduct"
                   [name]="'idProduct_' + i"
+                  #productModel="ngModel"
                   required
                   [disabled]="loadingProducts() || products().length === 0 || !isEditable"
                 >
@@ -89,6 +101,22 @@
                     {{ product.nombreProducto }} - {{ product.codigoBarras }}
                   </option>
                 </select>
+                <p
+                  *ngIf="productModel.touched && productModel.errors?.['required']"
+                  class="wms-field-error"
+                >
+                  Seleccioná un producto
+                </p>
+                <p *ngIf="productLoadMessage()" class="wms-field-error" role="alert">
+                  {{ productLoadMessage() }}
+                  <button
+                    type="button"
+                    class="underline underline-offset-2"
+                    (click)="loadProducts()"
+                  >
+                    Reintentar
+                  </button>
+                </p>
               </div>
 
               <div class="wms-field w-32">
@@ -98,10 +126,20 @@
                   type="number"
                   [(ngModel)]="line.amount"
                   [name]="'amount_' + i"
+                  #amountModel="ngModel"
                   required
                   min="1"
                   [disabled]="!isEditable"
                 />
+                <p
+                  *ngIf="
+                    amountModel.touched &&
+                    (amountModel.errors?.['required'] || amountModel.errors?.['min'])
+                  "
+                  class="wms-field-error"
+                >
+                  Ingresá una cantidad de al menos 1
+                </p>
               </div>
 
               <button
@@ -116,7 +154,17 @@
           </div>
 
           <div class="flex flex-wrap gap-3" *ngIf="isEditable">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="orderForm.invalid || saving()">
+            <button
+              type="submit"
+              class="wms-action wms-action-success"
+              [disabled]="
+                saving() ||
+                loadingProviders() ||
+                loadingProducts() ||
+                !!providerLoadMessage() ||
+                !!productLoadMessage()
+              "
+            >
               {{ saving() ? 'Guardando...' : isEditMode ? 'Actualizar orden' : 'Crear orden' }}
             </button>
             <a routerLink="/ordenes-compra" class="wms-action wms-action-secondary">Cancelar</a>
@@ -152,7 +200,9 @@
         producto. Esta acción no se puede deshacer.
       </div>
       <div class="wms-dialog-actions">
-        <button type="button" class="wms-action wms-action-secondary" (click)="cancelReceive()">Cancelar</button>
+        <button type="button" class="wms-action wms-action-secondary" (click)="cancelReceive()">
+          Cancelar
+        </button>
         <button type="button" class="wms-action wms-action-success" (click)="confirmReceive()">
           Confirmar recepción
         </button>

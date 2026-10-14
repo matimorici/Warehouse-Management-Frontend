@@ -7,8 +7,10 @@
       <p>Registrá y consultá entradas, salidas y traslados de mercadería entre ubicaciones.</p>
     </div>
 
-    <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
-    <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
+    <div *ngIf="errorMessage()" class="wms-error mb-4" role="alert">{{ errorMessage() }}</div>
+    <div *ngIf="successMessage()" class="wms-success mb-4" role="status" aria-live="polite">
+      {{ successMessage() }}
+    </div>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section class="wms-panel">
@@ -35,7 +37,12 @@
 
           <div class="wms-field">
             <label for="filterFrom">Desde</label>
-            <input id="filterFrom" type="datetime-local" name="filterFrom" [(ngModel)]="filters.from" />
+            <input
+              id="filterFrom"
+              type="datetime-local"
+              name="filterFrom"
+              [(ngModel)]="filters.from"
+            />
           </div>
 
           <div class="wms-field">
@@ -44,13 +51,19 @@
           </div>
 
           <div class="flex gap-2">
-            <button type="button" class="wms-action wms-action-secondary" (click)="applyFilters()">Filtrar</button>
-            <button type="button" class="wms-action wms-action-secondary" (click)="clearFilters()">Limpiar</button>
+            <button type="button" class="wms-action wms-action-secondary" (click)="applyFilters()">
+              Filtrar
+            </button>
+            <button type="button" class="wms-action wms-action-secondary" (click)="clearFilters()">
+              Limpiar
+            </button>
           </div>
         </div>
 
         <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando movimientos...</p>
-        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">
+          {{ listMessage() }}
+        </p>
 
         <div class="wms-table-wrap border-0" *ngIf="!loading() && movements().length > 0">
           <table class="wms-table">
@@ -65,7 +78,7 @@
             </thead>
             <tbody>
               <tr *ngFor="let movement of movements()">
-                <td class="wms-number">{{ movement.dateTime }}</td>
+                <td class="wms-number">{{ movement.dateTime | date: 'dd/MM/yyyy, HH:mm' }}</td>
                 <td>{{ productName(movement.idProduct) }}</td>
                 <td>{{ locationName(movement.idLocationFrom) }}</td>
                 <td>{{ locationName(movement.idLocationTo) }}</td>
@@ -95,16 +108,30 @@
                 {{ product.nombreProducto }} - {{ product.codigoBarras }}
               </option>
             </select>
+            <p *ngIf="productLoadMessage()" class="wms-field-error" role="alert">
+              {{ productLoadMessage() }}
+              <button type="button" class="underline underline-offset-2" (click)="loadProducts()">
+                Reintentar
+              </button>
+            </p>
           </div>
 
           <div class="wms-field">
-            <label for="idLocationFrom">Ubicación de origen <span class="text-gray-400">(opcional)</span></label>
+            <label for="idLocationFrom"
+              >Ubicación de origen <span class="text-gray-400">(opcional)</span></label
+            >
             <select id="idLocationFrom" name="idLocationFrom" [(ngModel)]="form.idLocationFrom">
               <option [ngValue]="null">Sin origen (ingreso externo)</option>
               <option *ngFor="let location of locations()" [ngValue]="location.id">
                 {{ location.name }}
               </option>
             </select>
+            <p *ngIf="locationLoadMessage()" class="wms-field-error" role="alert">
+              {{ locationLoadMessage() }}
+              <button type="button" class="underline underline-offset-2" (click)="loadLocations()">
+                Reintentar
+              </button>
+            </p>
           </div>
 
           <div class="wms-field">
@@ -121,7 +148,10 @@
                 {{ location.name }}
               </option>
             </select>
-            <p *ngIf="locationModel.touched && locationModel.errors?.['required']" class="wms-field-error">
+            <p
+              *ngIf="locationModel.touched && locationModel.errors?.['required']"
+              class="wms-field-error"
+            >
               La ubicación de destino es obligatoria
             </p>
           </div>
@@ -137,10 +167,19 @@
                 Usuario actual
               </option>
             </select>
-            <p *ngIf="userLoadMessage()" class="wms-field-hint">{{ userLoadMessage() }}</p>
+            <p *ngIf="userLoadMessage()" class="wms-field-error" role="alert">
+              {{ userLoadMessage() }}
+              <button type="button" class="underline underline-offset-2" (click)="loadUsers()">
+                Reintentar
+              </button>
+            </p>
           </div>
 
-          <button type="submit" class="wms-action wms-action-success" [disabled]="movementForm.invalid || saving()">
+          <button
+            type="submit"
+            class="wms-action wms-action-success"
+            [disabled]="movementForm.invalid || saving()"
+          >
             {{ saving() ? 'Registrando...' : 'Registrar movimiento' }}
           </button>
         </form>

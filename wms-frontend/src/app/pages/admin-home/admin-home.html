@@ -15,7 +15,11 @@
             <p>{{ group.hint }}</p>
           </div>
 
-          <a *ngFor="let section of group.sections" [routerLink]="section.route" class="wms-launcher-row">
+          <a
+            *ngFor="let section of group.sections"
+            [routerLink]="section.route"
+            class="wms-launcher-row"
+          >
             <span class="wms-launcher-row-main">
               <span class="wms-launcher-row-name">{{ section.label }}</span>
               <span class="wms-launcher-row-desc">{{ section.description }}</span>
@@ -45,7 +49,11 @@
             <p>{{ adminGroup.hint }}</p>
           </div>
 
-          <a *ngFor="let section of adminGroup.sections" [routerLink]="section.route" class="wms-launcher-row">
+          <a
+            *ngFor="let section of adminGroup.sections"
+            [routerLink]="section.route"
+            class="wms-launcher-row"
+          >
             <span class="wms-launcher-row-main">
               <span class="wms-launcher-row-name">{{ section.label }}</span>
               <span class="wms-launcher-row-desc">{{ section.description }}</span>
@@ -74,12 +82,20 @@
         <section class="wms-panel">
           <div class="wms-panel-title">
             <h2>Resumen operativo</h2>
-            <p *ngIf="loadingSummary()">Actualizando...</p>
           </div>
 
           <p *ngIf="summaryError()" class="wms-error m-4">{{ summaryError() }}</p>
 
-          <div class="wms-summary" *ngIf="!summaryError()">
+          <p
+            *ngIf="loadingSummary()"
+            class="p-5 text-sm text-gray-600"
+            role="status"
+            aria-live="polite"
+          >
+            Cargando los datos operativos…
+          </p>
+
+          <div class="wms-summary" *ngIf="!loadingSummary() && !summaryError()">
             <div class="wms-summary-row">
               <span class="wms-summary-row-label">Productos</span>
               <span class="wms-summary-row-value">{{ products().length }}</span>
@@ -122,11 +138,17 @@
           </div>
 
           <p *ngIf="loadingSummary()" class="p-5 text-sm text-gray-600">Cargando...</p>
-          <p *ngIf="!loadingSummary() && outOfStockProducts.length === 0" class="p-5 text-sm text-gray-600">
+          <p
+            *ngIf="!loadingSummary() && outOfStockProducts.length === 0"
+            class="p-5 text-sm text-gray-600"
+          >
             Todos los productos tienen stock disponible.
           </p>
 
-          <div class="wms-table-wrap border-0" *ngIf="!loadingSummary() && outOfStockProducts.length > 0">
+          <div
+            class="wms-table-wrap border-0"
+            *ngIf="!loadingSummary() && outOfStockProducts.length > 0"
+          >
             <table class="wms-table">
               <thead>
                 <tr>
@@ -140,7 +162,9 @@
                   <td>{{ product.nombreProducto }}</td>
                   <td class="wms-number">{{ product.cantidadPendiente }}</td>
                   <td>
-                    <a [routerLink]="['/productos', product.idProducto]" class="wms-inline-link">Ver</a>
+                    <a [routerLink]="['/productos', product.idProducto]" class="wms-inline-link"
+                      >Ver</a
+                    >
                   </td>
                 </tr>
               </tbody>

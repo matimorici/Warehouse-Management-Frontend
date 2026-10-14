@@ -3,19 +3,30 @@
 
   <main class="wms-content pb-10">
     <div class="wms-page-heading flex items-end justify-between gap-4">
-      <div><h1>Listado de órdenes</h1><p>Consultá y mantené las solicitudes de retiro registradas.</p></div>
-      <a routerLink="/ordenes-retiro/nuevo" class="wms-action wms-action-success">Nueva orden de retiro</a>
+      <div>
+        <h1>Listado de órdenes</h1>
+        <p>Consultá y mantené las solicitudes de retiro registradas.</p>
+      </div>
+      <a routerLink="/ordenes-retiro/nuevo" class="wms-action wms-action-success"
+        >Nueva orden de retiro</a
+      >
     </div>
     <div
       *ngIf="errorMessage()"
       class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+      role="alert"
     >
-      {{ errorMessage() }}
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="mt-2 underline underline-offset-2" (click)="loadOrders()">
+        Reintentar
+      </button>
     </div>
 
     <div
       *ngIf="successMessage()"
       class="mb-4 rounded border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700"
+      role="status"
+      aria-live="polite"
     >
       {{ successMessage() }}
     </div>
@@ -35,15 +46,15 @@
           <tr *ngIf="loading()">
             <td colspan="5" class="py-8 text-center text-gray-500">Cargando...</td>
           </tr>
-          <tr *ngIf="!loading() && orders().length === 0">
+          <tr *ngIf="!loading() && !errorMessage() && orders().length === 0">
             <td colspan="5" class="py-8 text-center text-gray-500">
               No hay órdenes de retiro registradas
             </td>
           </tr>
           <tr *ngFor="let order of orders()">
             <td class="wms-number">{{ order.idOrdenRetiro }}</td>
-            <td>{{ order.idUsuario }}</td>
-            <td>{{ order.fechaHora }}</td>
+            <td>{{ userName(order.idUsuario) }}</td>
+            <td>{{ order.fechaHora | date: 'dd/MM/yyyy, HH:mm' }}</td>
             <td>{{ getLineCount(order) }}</td>
             <td class="space-x-2">
               <a
@@ -64,4 +75,13 @@
       </table>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDeleteId() !== null"
+    title="Eliminar orden de retiro"
+    [message]="
+      'Se eliminará la orden #' + pendingDeleteId() + '. Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

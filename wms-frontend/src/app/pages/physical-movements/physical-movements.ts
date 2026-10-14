@@ -43,6 +43,8 @@ export class PhysicalMovementsComponent implements OnInit {
   readonly successMessage = signal('');
   readonly listMessage = signal('');
   readonly userLoadMessage = signal('');
+  readonly productLoadMessage = signal('');
+  readonly locationLoadMessage = signal('');
 
   constructor(
     private movementService: PhysicalMovementService,
@@ -118,16 +120,24 @@ export class PhysicalMovementsComponent implements OnInit {
   }
 
   loadProducts(): void {
+    this.productLoadMessage.set('');
     this.productService.getProducts().subscribe({
       next: (products) => this.products.set(products),
-      error: (err) => console.error('Error al cargar productos:', err),
+      error: (err) => {
+        console.error('Error al cargar productos:', err);
+        this.productLoadMessage.set('No se pudieron cargar los productos. Reintentá la carga.');
+      },
     });
   }
 
   loadLocations(): void {
+    this.locationLoadMessage.set('');
     this.locationService.list().subscribe({
       next: (locations) => this.locations.set(locations),
-      error: (err) => console.error('Error al cargar ubicaciones:', err),
+      error: (err) => {
+        console.error('Error al cargar ubicaciones:', err);
+        this.locationLoadMessage.set('No se pudieron cargar las ubicaciones. Reintentá la carga.');
+      },
     });
   }
 
@@ -138,7 +148,9 @@ export class PhysicalMovementsComponent implements OnInit {
       error: (err) => {
         console.error('Error al cargar usuarios:', err);
         this.users.set([]);
-        this.userLoadMessage.set('No se pudo cargar la lista de usuarios; se usará el usuario actual.');
+        this.userLoadMessage.set(
+          'No se pudo cargar la lista de usuarios; se usará el usuario actual.',
+        );
       },
     });
   }

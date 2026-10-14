@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTopbarComponent],
+  imports: [CommonModule, RouterLink, PageTopbarComponent, ConfirmDialogComponent],
   templateUrl: './users.html',
 })
 export class UsersComponent implements OnInit {
@@ -17,6 +18,7 @@ export class UsersComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly listMessage = signal('');
+  readonly pendingDelete = signal<UserInfo | null>(null);
 
   constructor(private authService: AuthService) {}
 
@@ -62,10 +64,13 @@ export class UsersComponent implements OnInit {
       return;
     }
 
-    if (!confirm(`¿Estás seguro de eliminar a ${user.nombre} ${user.apellido}?`)) {
-      return;
-    }
+    this.pendingDelete.set(user);
+  }
 
+  confirmDelete(): void {
+    const user = this.pendingDelete();
+    if (!user) return;
+    this.pendingDelete.set(null);
     this.authService.deleteUser(user.idUsuario).subscribe({
       next: () => {
         this.successMessage.set('Usuario eliminado correctamente');
@@ -76,5 +81,9 @@ export class UsersComponent implements OnInit {
         this.errorMessage.set(err.error?.error || 'No se pudo eliminar el usuario');
       },
     });
+  }
+
+  cancelDelete(): void {
+    this.pendingDelete.set(null);
   }
 }

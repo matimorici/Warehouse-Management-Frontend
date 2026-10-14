@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderForm, ProviderService } from '../../services/provider.service';
 import { PageTopbarComponent } from '../../shared/page-topbar';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog';
 
 @Component({
   selector: 'app-providers',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageTopbarComponent],
+  imports: [CommonModule, FormsModule, PageTopbarComponent, ConfirmDialogComponent],
   templateUrl: './providers.html',
 })
 export class ProvidersComponent implements OnInit {
@@ -22,6 +23,7 @@ export class ProvidersComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly listMessage = signal('');
+  readonly pendingDelete = signal<ProviderForm | null>(null);
 
   constructor(private providerService: ProviderService) {}
 
@@ -79,10 +81,15 @@ export class ProvidersComponent implements OnInit {
   }
 
   deleteProvider(id: number | undefined): void {
-    if (!id || !confirm('¿Estás seguro de eliminar este proveedor?')) {
-      return;
-    }
+    const provider = this.providers().find((item) => item.idProveedor === id);
+    if (provider) this.pendingDelete.set(provider);
+  }
 
+  confirmDelete(): void {
+    const provider = this.pendingDelete();
+    const id = provider?.idProveedor;
+    if (!provider || !id) return;
+    this.pendingDelete.set(null);
     this.providerService.deleteProvider(id).subscribe({
       next: () => {
         this.successMessage.set('Proveedor eliminado correctamente');
@@ -98,6 +105,10 @@ export class ProvidersComponent implements OnInit {
     });
   }
 
+  cancelDelete(): void {
+    this.pendingDelete.set(null);
+  }
+
   onSubmit(): void {
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -111,9 +122,11 @@ export class ProvidersComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.saving.set(false);
-        this.successMessage.set(this.editingId !== null
-          ? 'Proveedor actualizado correctamente'
-          : 'Proveedor cargado correctamente');
+        this.successMessage.set(
+          this.editingId !== null
+            ? 'Proveedor actualizado correctamente'
+            : 'Proveedor cargado correctamente',
+        );
         this.cancelEdit();
         this.loadProviders();
       },

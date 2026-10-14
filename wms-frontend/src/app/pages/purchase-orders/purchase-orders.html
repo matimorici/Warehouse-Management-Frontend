@@ -7,14 +7,34 @@
         <h1>Órdenes de compra</h1>
         <p>Cargá pedidos a proveedores y registrá su recepción para actualizar el stock.</p>
       </div>
-      <a routerLink="/ordenes-compra/nuevo" class="wms-action wms-action-success">Nueva orden de compra</a>
+      <a routerLink="/ordenes-compra/nuevo" class="wms-action wms-action-success"
+        >Nueva orden de compra</a
+      >
     </div>
 
     <div *ngIf="errorMessage()" class="wms-error mb-4">{{ errorMessage() }}</div>
     <div *ngIf="successMessage()" class="wms-success mb-4">{{ successMessage() }}</div>
 
     <p *ngIf="loading()" class="wms-empty">Cargando órdenes de compra...</p>
-    <p *ngIf="!loading() && listMessage()" class="wms-empty">{{ listMessage() }}</p>
+    <div *ngIf="!loading() && listMessage()" class="wms-empty" [attr.role]="listError() ? 'alert' : 'status'">
+      <p>{{ listMessage() }}</p>
+      <button
+        *ngIf="orders().length === 0 && !listError()"
+        type="button"
+        class="mt-2 underline underline-offset-2"
+        (click)="loadOrders()"
+      >
+        Actualizar
+      </button>
+      <button
+        *ngIf="listError()"
+        type="button"
+        class="mt-2 underline underline-offset-2"
+        (click)="loadOrders()"
+      >
+        Reintentar
+      </button>
+    </div>
 
     <div class="wms-table-wrap" *ngIf="!loading() && orders().length > 0">
       <table class="wms-table">
@@ -31,7 +51,7 @@
         <tbody>
           <tr *ngFor="let order of orders()">
             <td class="wms-number">{{ order.idPurchaseOrder }}</td>
-            <td>{{ order.dateTime }}</td>
+            <td>{{ order.dateTime | date: 'dd/MM/yyyy, HH:mm' }}</td>
             <td>{{ providerName(order.idSupplier) }}</td>
             <td>{{ lineSummary(order) }}</td>
             <td>
@@ -61,4 +81,15 @@
       </table>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDeleteId() !== null"
+    title="Eliminar orden de compra"
+    [message]="
+      'Se eliminará la orden de compra #' +
+      pendingDeleteId() +
+      '. Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

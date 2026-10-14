@@ -18,7 +18,9 @@
         </div>
 
         <p *ngIf="loading()" class="p-5 text-sm text-gray-600">Cargando proveedores...</p>
-        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">{{ listMessage() }}</p>
+        <p *ngIf="!loading() && listMessage()" class="p-5 text-sm text-gray-600">
+          {{ listMessage() }}
+        </p>
 
         <div class="wms-table-wrap border-0" *ngIf="!loading() && providers().length > 0">
           <table class="wms-table">
@@ -42,7 +44,11 @@
                 <td>{{ provider.direccion || '—' }}</td>
                 <td>
                   <div class="flex items-center gap-2">
-                    <button type="button" class="wms-action wms-action-secondary wms-action-sm" (click)="editProvider(provider)">
+                    <button
+                      type="button"
+                      class="wms-action wms-action-secondary wms-action-sm"
+                      (click)="editProvider(provider)"
+                    >
                       Editar
                     </button>
                     <button
@@ -97,14 +103,23 @@
               minlength="3"
               maxlength="150"
             />
-            <p *ngIf="razonSocialModel.touched && razonSocialModel.errors?.['required']" class="wms-field-error">
+            <p
+              *ngIf="razonSocialModel.touched && razonSocialModel.errors?.['required']"
+              class="wms-field-error"
+            >
               La razón social no puede estar vacía
             </p>
           </div>
 
           <div class="wms-field">
             <label for="telefono">Teléfono</label>
-            <input id="telefono" type="tel" [(ngModel)]="form.telefono" name="telefono" maxlength="30" />
+            <input
+              id="telefono"
+              type="tel"
+              [(ngModel)]="form.telefono"
+              name="telefono"
+              maxlength="30"
+            />
           </div>
 
           <div class="wms-field">
@@ -125,14 +140,35 @@
 
           <div class="wms-field">
             <label for="direccion">Dirección</label>
-            <input id="direccion" type="text" [(ngModel)]="form.direccion" name="direccion" maxlength="200" />
+            <input
+              id="direccion"
+              type="text"
+              [(ngModel)]="form.direccion"
+              name="direccion"
+              maxlength="200"
+            />
           </div>
 
           <div class="flex gap-3">
-            <button type="submit" class="wms-action wms-action-success" [disabled]="providerForm.invalid || saving()">
-              {{ saving() ? 'Guardando...' : editingId !== null ? 'Actualizar proveedor' : 'Guardar proveedor' }}
+            <button
+              type="submit"
+              class="wms-action wms-action-success"
+              [disabled]="providerForm.invalid || saving()"
+            >
+              {{
+                saving()
+                  ? 'Guardando...'
+                  : editingId !== null
+                    ? 'Actualizar proveedor'
+                    : 'Guardar proveedor'
+              }}
             </button>
-            <button *ngIf="editingId !== null" type="button" class="wms-action wms-action-secondary" (click)="cancelEdit()">
+            <button
+              *ngIf="editingId !== null"
+              type="button"
+              class="wms-action wms-action-secondary"
+              (click)="cancelEdit()"
+            >
               Cancelar
             </button>
           </div>
@@ -140,4 +176,13 @@
       </aside>
     </div>
   </main>
+  <app-confirm-dialog
+    *ngIf="pendingDelete() as provider"
+    title="Eliminar proveedor"
+    [message]="
+      'Se eliminará el proveedor «' + provider.razonSocial + '». Esta acción no se puede deshacer.'
+    "
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
 </div>

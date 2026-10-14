@@ -12,7 +12,10 @@
 
     <div *ngIf="loading()" class="wms-empty">Cargando producto...</div>
 
-    <div *ngIf="!loading() && product()" class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div
+      *ngIf="!loading() && product()"
+      class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]"
+    >
       <section class="wms-panel wms-form-panel">
         <h2>Datos del artículo</h2>
 
@@ -27,7 +30,9 @@
           </div>
           <div>
             <dt class="wms-section-label">Código de barras</dt>
-            <dd class="mt-1 font-mono text-sm text-gray-900">{{ product()!.codigoBarras || '—' }}</dd>
+            <dd class="mt-1 font-mono text-sm text-gray-900">
+              {{ product()!.codigoBarras || '—' }}
+            </dd>
           </div>
           <div>
             <dt class="wms-section-label">Origen</dt>
@@ -70,10 +75,14 @@
             </div>
 
             <p class="wms-field-hint" *ngIf="stock() as currentStock">
-              Última actualización: {{ currentStock.fechaHora }}
+              Última actualización: {{ currentStock.fechaHora | date: 'dd/MM/yyyy, HH:mm' }}
             </p>
 
-            <button type="submit" class="wms-action wms-action-success" [disabled]="stockFormRef.invalid || saving()">
+            <button
+              type="submit"
+              class="wms-action wms-action-success"
+              [disabled]="stockFormRef.invalid || saving()"
+            >
               {{ saving() ? 'Guardando...' : 'Guardar stock' }}
             </button>
           </form>
