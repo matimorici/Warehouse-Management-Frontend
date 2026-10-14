@@ -18,6 +18,11 @@ import { AuthService } from '../services/auth.service';
         </a>
 
         <div class="wms-topbar-actions">
+          <div class="wms-session-identity" aria-label="Sesión iniciada">
+            <span class="wms-session-name">{{ currentUserName || 'Usuario' }}</span>
+            <span *ngIf="currentUserRole" class="wms-session-role">{{ currentUserRole }}</span>
+          </div>
+
           <a *ngIf="showBack" [routerLink]="resolvedBackRoute" class="wms-action wms-action-secondary">
             {{ backLabel }}
           </a>
@@ -47,6 +52,21 @@ export class PageTopbarComponent {
 
   get resolvedBackRoute(): string {
     return this.backRoute || this.homeRoute;
+  }
+
+  get currentUserName(): string {
+    return this.authService.getCurrentUserName().trim();
+  }
+
+  get currentUserRole(): string {
+    const role = this.authService.getUserRole();
+    if (role === 'ADMIN') {
+      return 'Administrador';
+    }
+    if (role === 'OPERARIO') {
+      return 'Operario';
+    }
+    return '';
   }
 
   logout(): void {

@@ -709,6 +709,30 @@ a.wms-task-card:hover {
   gap: 10px;
 }
 
+.wms-session-identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 1px solid #354552;
+  padding-left: 14px;
+}
+
+.wms-session-name {
+  max-width: 190px;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wms-session-role {
+  color: #b9c5cc;
+  font-size: 0.68rem;
+}
+
 .wms-empty {
   border: 1px dashed #c3ccd2;
   border-radius: 2px;
