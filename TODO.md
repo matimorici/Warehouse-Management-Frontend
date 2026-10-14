@@ -66,7 +66,7 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 
 - [x] **Auth guard + role guard** — `authGuard` / `roleGuard(roles)` in `services/auth.guard.ts`; all operational routes require auth, admin routes (`/admin`, `/register`, `/usuarios`, `/proveedores`) require `ADMIN`, `/operario` requires `OPERARIO`. Unauthorised → `/login`, wrong role → `/sin-acceso`.
 - [x] **Logout action** — shared `PageTopbarComponent` (`shared/page-topbar.ts`) with a "Cerrar sesión" button calling `POST /api/auth/logout`, clearing the local session and returning to `/login`. Retrofitted onto every page.
-- [x] **Dashboard / Home** — `/home` still just redirects by role; the real landing is `/admin` (live summary: products, stock units, purchase-order statuses, withdrawal orders, movements, locations, plus a "sin stock" table) and `/operario` (task launcher).
+- [x] **Dashboard / Home** — `/home` still just redirects by role; the real landing is `/admin` (alerts for pending purchase orders and products with zero stock, followed by grouped administration links) and `/operario` (task launcher).
 - [x] **Producto detail (stock)** — `/productos/:id` (`GET /api/productos/{id}`, stock `GET/PUT …/stock`, barcode `GET …/barcode`). Linked from the productos table ("Ver stock").
 - [x] **Proveedores list + edit** — `/proveedores` rewritten with list, create, edit and delete.
 - [x] **Ubicaciones list + form** — `/ubicaciones` list/create/edit/delete.
@@ -76,7 +76,14 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 - [x] **Usuarios list** — `/usuarios` (admin-only) with delete (self-delete blocked).
 - [x] **Usuario creation** — reuses `/register` (create-only). Role assignment/edit is **not** possible: `UserController` has no update/role endpoint and new users default to `OPERARIO`.
 - [x] **Not-found / 403 page** — `/sin-acceso` (`ForbiddenComponent`) and wildcard `**` → `NotFoundComponent`.
-- [x] **Specs** — creation specs for every new component (`product-detail`, `locations`, `supplier-ratings`, `purchase-orders`, `purchase-order-form`, `physical-movements`, `users`, `forbidden`, `not-found`, `page-topbar`); `operator-home.spec.ts` updated with `provideHttpClient()` / `provideHttpClientTesting()`.
+- [x] **Specs** — creation specs for every new component (`product-detail`, `locations`, `supplier-ratings`, `purchase-orders`, `purchase-order-form`, `physical-movements`, `users`, `forbidden`, `not-found`, `page-topbar`); `admin-home.spec.ts` now covers its four data states and `page-topbar.spec.ts` covers the displayed identity.
+
+### Pendientes de contrato del backend — panel de administración
+
+- [ ] **Confirmar si `GET /productos` devuelve el catálogo completo o una página** — El frontend acepta arrays y respuestas `{ content: [...] }`, pero descarta metadatos como `totalElements`. Hasta confirmar el contrato, el panel sólo describe las coincidencias de la respuesta recibida y no presenta sus cantidades como totales.
+- [ ] **Definir el umbral de stock bajo** — No hay una regla de negocio confirmada; no mostrar esta alerta hasta acordar el umbral y dónde se configura.
+- [ ] **Exponer el estado de las órdenes de retiro** — `OrdenRetiroResponse` no incluye estado, por lo que el frontend no puede determinar qué órdenes siguen abiertas. Definir estado y criterio antes de sumar esa alerta.
+- [ ] **Evaluar un endpoint agregado de conteos para el panel** — Hoy el frontend consulta las órdenes de compra completas para contar las pendientes y los productos para detectar stock cero. Un endpoint de resumen evitaría descargar listas completas y permitiría devolver totales inequívocos.
 
 > Historical verification: at that point, `npm run build` was clean and `npm test` reported 20 spec files / 21 passing tests. The later signal migration changed component APIs; update affected specs before relying on that earlier test result. Node isn't on the sandbox `PATH`; use the portable binary at `/tmp/opencode/node/bin` (prefix `PATH`) when running commands from `wms-frontend/`.
 
@@ -99,7 +106,7 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 
 ### 🔴 Prioridad alta
 
-- [ ] **Actualizar y ampliar las specs después de migrar a señales** — La mayoría de las specs sólo comprueba `should create`. Además, `locations.spec.ts` sigue esperando valores planos (`component.successMessage`, `component.locations`, `component.loading`), aunque ahora son señales. Leerlas como `component.successMessage()`, etc., y añadir pruebas de plantilla para carga, lista con datos, lista vacía y error; empezar por `ordenes-retiro`.
+- [ ] **Actualizar y ampliar las specs después de migrar a señales** — La mayoría de las specs todavía comprueba sólo `should create`. `admin-home.spec.ts` cubre carga, error con reintento, respuesta vacía y datos; `locations.spec.ts` ya lee sus señales correctamente. Sumar estados de plantilla en los listados restantes.
 - [ ] **Quitar Zone.js si no hay dependencias ocultas** — Angular 21 usa zoneless por defecto y el estado de las vistas ya se actualiza con señales. `angular.json` todavía carga `zone.js` y `package.json` lo conserva. Confirmar que ninguna librería requiere Zone.js; después quitar el polyfill, la dependencia y su entrada del lockfile.
 - [ ] **Verificar autorización en el backend** — `authGuard` y `roleGuard` leen el rol desde `localStorage`; sirven para navegación, pero el cliente puede modificarlos. Confirmar que cada endpoint protegido valida la sesión y los permisos en el servidor.
 
@@ -135,7 +142,7 @@ Built in this pass — routes, guards and components (see `src/app/app.routes.ts
 
 - [x] **Mostrar datos legibles y localizados** — Órdenes de retiro muestra el nombre de usuario y usa el ID como respaldo. Fechas de órdenes, movimientos, valoraciones y stock usan `dd/MM/yyyy, HH:mm` con la zona local del navegador.
 - [x] **Unificar confirmación de acciones destructivas** — Los borrados usan un diálogo compartido que nombra el registro, describe que la acción no se puede deshacer, permite cancelar con Escape y enfoca Cancelar al abrirse.
-- [x] **No presentar ceros como datos confirmados durante la carga** — El panel de resumen oculta los contadores hasta completar su carga inicial.
+- [x] **Separar carga, error, vacío y datos en el panel de administración** — Cada fuente tiene su propio estado y reintento; un fallo ya no se convierte en una lista vacía ni se anuncia como cero confirmado.
 - [x] **Completar el flujo de validación del formulario** — Las órdenes permiten enviar para recibir mensajes de validación, muestran errores junto a campos inválidos y enfocan el primer campo inválido. Los mensajes globales de éxito/error se anuncian con regiones accesibles.
 
 ### 🟢 Prioridad baja / validar con uso real

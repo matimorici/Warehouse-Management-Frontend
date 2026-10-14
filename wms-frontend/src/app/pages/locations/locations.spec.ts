@@ -2,7 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 
+import { AuthService } from '../../services/auth.service';
 import { LocationsComponent } from './locations';
 
 describe('LocationsComponent', () => {
@@ -12,7 +14,21 @@ describe('LocationsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LocationsComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: {
+            getUserRole: () => null,
+            getHomeRouteByRole: () => '/login',
+            getCurrentUserName: () => '',
+            logout: () => of(void 0),
+            clearSession: () => undefined,
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LocationsComponent);
@@ -37,14 +53,14 @@ describe('LocationsComponent', () => {
     expect(create.request.method).toBe('POST');
     create.flush({ id: 1, name: 'Pasillo A' });
 
-    expect(component.successMessage).toBe('Ubicación creada correctamente');
+    expect(component.successMessage()).toBe('Ubicación creada correctamente');
 
     const reload = httpMock.expectOne('/api/ubicaciones');
     expect(reload.request.method).toBe('GET');
     reload.flush([{ id: 1, name: 'Pasillo A' }]);
 
-    expect(component.locations).toEqual([{ id: 1, name: 'Pasillo A' }]);
-    expect(component.loading).toBe(false);
+    expect(component.locations()).toEqual([{ id: 1, name: 'Pasillo A' }]);
+    expect(component.loading()).toBe(false);
     httpMock.verify();
   });
 });
